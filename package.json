@@ -1,8 +1,8 @@
 {
-  "name": "metamask-stack",
+  "name": "eth-gas-price-visuals",
   "version": "1.0.0",
   "description": "A boilerplate for react-hyperscript using browserify with beefy and ES6.",
-  "main": "index.js",
+  "main": "app/components/bar-chart.js",
   "scripts": {
     "start": "beefy index.js:bundle.js --live --open",
     "test": "echo \"Error: no test specified\" && exit 1",

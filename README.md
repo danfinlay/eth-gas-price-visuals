@@ -1,10 +1,10 @@
-# The MetaMask Stack
+# Eth Gas Price Visuals
 
-[Live Example](https://flyswatter.github.io/MetaMaskStack/)
+[Live Example](https://danfinlay.github.io/eth-gas-price-visuals/)
 
 A composable boilerplate for writing Ethereum dapps in a similar environment to what the MetaMask developers use themselves to develop MetaMask.
 
-Forked from my older [react-hyperscript-beefy-boilerplate](https://github.com/flyswatter/react-hyperscript-beefy-es6-boilerplate), which is not Ethereum specific.
+Forked from my older [react-hyperscript-beefy-boilerplate](https://github.com/danfinlay/react-hyperscript-beefy-es6-boilerplate), which is not Ethereum specific.
 
 ## Purpose
 
