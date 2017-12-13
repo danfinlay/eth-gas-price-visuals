@@ -1,6 +1,6 @@
 {
   "name": "eth-gas-price-visuals",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A boilerplate for react-hyperscript using browserify with beefy and ES6.",
   "main": "app/components/bar-chart.js",
   "scripts": {
