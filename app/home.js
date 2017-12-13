@@ -73,7 +73,7 @@ Home.prototype.render = function () {
       error ? h('span', { style: { color: '#212121' } }, error) : null,
 
       h('a', {
-        href: 'https://github.com/flyswatter/metamaskstack',
+        href: 'https://github.com/danfinlay/eth-gas-price-visuals',
         },
       'Fork me on GitHub to play with MetaMask.'),
     ])
