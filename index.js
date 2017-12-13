@@ -4,6 +4,7 @@ const configureStore = require('./lib/store')
 const Root = require('./app/root.js')
 const Eth = require('ethjs')
 const metamask = require('metamascara')
+const gasses = require('./sample-blocks.json')
 let eth;
 
 
@@ -29,6 +30,7 @@ const store = configureStore({
   nonce: 0,
   web3Found: false,
   loading: true,
+  recentBlocks: gasses,
 })
 
 function startApp(){

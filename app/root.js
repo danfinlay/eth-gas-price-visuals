@@ -3,6 +3,7 @@ const Component = require('react').Component
 const h = require('react-hyperscript')
 const connect = require('react-redux').connect
 const Eth = require('ethjs');
+const BarChart = require('./components/bar-chart')
 
 const MetaMaskLink = require('./components/download-metamask')
 
@@ -19,7 +20,7 @@ function AppRoot () {
 
 AppRoot.prototype.render = function () {
   const props = this.props
-  const { eth, loading, nonce, error, web3Found } = props
+  const { eth, loading, nonce, error, web3Found, recentBlocks } = props
   console.dir(props)
 
   return (
@@ -30,7 +31,7 @@ AppRoot.prototype.render = function () {
       },
     }, [
 
-      h('h1', `The MetaMask Stack`),
+      h('h1', `Gas Price Visualizer`),
 
       h('h3', [
         'A quick way to start building Web Dapps on ',
@@ -46,11 +47,15 @@ AppRoot.prototype.render = function () {
 
           h(MetaMaskLink, { style: { width: '250px' } }),
         ])
-        : loading ? h('span', 'Loading...') : h('button', {
-          onClick: () => this.sendTip(),
-        }, 'Tip the developer with Ethereum'),
+          : loading ? h('span', 'Loading...') : h('div', [
+            h(BarChart, { recentBlocks }),
+            h('br'),
+            h('button', {
+              onClick: () => this.sendTip(),
+            }, 'Tip the developer with Ethereum'),
+          ]),
 
-      h('br'),
+        h('br'),
       nonce > 0 ? h('h2', `Thanks for your generous ${nonce} tip!`) : null,
       h('br'),
       error ? h('span', { style: { color: '#212121' } }, error) : null,
