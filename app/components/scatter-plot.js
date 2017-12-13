@@ -14,7 +14,6 @@ function ScatterPlot () {
 }
 
 ScatterPlot.prototype.render = function () {
-  console.log('RENDERING SCATTER PLOT')
   const props = this.props
   const { recentBlocks } = props
   const txs = []
@@ -34,7 +33,6 @@ ScatterPlot.prototype.render = function () {
   })
 
   if (txs.length === 0) {
-    console.log('no txs found in ', txs)
     return h('div', 'Loading...')
   }
 
@@ -45,16 +43,16 @@ ScatterPlot.prototype.render = function () {
   const topQuartile = sorted[Math.floor(sorted.length * 99/100 )]
   const topPrice = topQuartile.gasPrice
 
+  const latestBlockNum = sorted[sorted.length - 1].blockNumber
+
   const filtered = sorted.filter((tx) => {
     return tx.gasPrice <= topPrice
   })
-  console.dir(filtered)
 
   const blockArr = filtered.map(tx => tx.blockNumber)
   const minBlock = Math.min.apply(null, blockArr)
   const maxBlock = Math.max.apply(null, blockArr)
   const range = [minBlock, maxBlock]
-  console.dir({ range })
 
   return h(ScatterChart, {
     width: 400,

@@ -16,15 +16,15 @@ function AppRoot () {
 }
 
 AppRoot.prototype.render = function () {
-  console.log('rendering root')
+  console.log('rendering root with store provider')
   const props = this.props
-  const { eth, loading, nonce, error, web3Found, recentBlocks, store } = props
+  const { store } = props
+  console.dir(store)
 
   return (
     h(Provider, {
       store,
-      recentBlocks,
-    }, h(Home, { eth, loading, nonce, error, web3Found, recentBlocks, store }
-  )))
+    }, h(Home)
+  ))
 }
 

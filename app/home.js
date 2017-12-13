@@ -5,13 +5,25 @@ const connect = require('react-redux').connect
 const Eth = require('ethjs');
 const BarChart = require('./components/scatter-plot')
 const Provider = require('react-redux').Provider
+const extend = require('xtend')
 
 const MetaMaskLink = require('./components/download-metamask')
 
 module.exports = connect(mapStateToProps)(Home)
 
 function mapStateToProps (state) {
-  return state
+  return extend(state, {
+    recentBlocks: state.recentBlocks.map((oldBlock) => {
+      return {
+        number: oldBlock.number,
+        transactions: oldBlock.transactions.map((tx) => {
+          return {
+            gasPrice: tx.gasPrice,
+          }
+        })
+      }
+    })
+  })
 }
 
 inherits(Home, Component)
@@ -20,10 +32,8 @@ function Home () {
 }
 
 Home.prototype.render = function () {
-  console.log('rendering home')
   const props = this.props
   const { eth, loading, nonce, error, web3Found, recentBlocks, store } = props
-  console.dir(props)
 
   return (
     h('.content', {
@@ -88,7 +98,6 @@ Home.prototype.sendTip = async function () {
     })
   })
   .catch((reason) => {
-    console.error(reason)
     this.props.dispatch({ type: 'HIDE_LOADING' })
     this.props.dispatch({
       type: 'SHOW_ERROR',

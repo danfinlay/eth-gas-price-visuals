@@ -38,16 +38,14 @@ window.addEventListener('load', function() {
 async function trackOldBlocks () {
   blockTracker.once('block', async (block) => {
     const blockNum = block.number
-
     for (var i = 0; i < 20; i++) {
       try {
         const blockNumBn = new BN(blockNum.substr(2), 16)
         const newNum = blockNumBn.subn(i).toString(10)
-        console.log('getting block ' + newNum)
         const newBlock = await eth.getBlockByNumber(newNum, true)
         newBlock.number = '0x' + newBlock.number.toString(16)
         newBlock.transactions = newBlock.transactions.map((tx) => {
-          tx.gasPrice = tx.gasPrice.toString(16)
+          tx.gasPrice = '0x' + tx.gasPrice.toString(16)
           return tx
         })
         if (newBlock) {
