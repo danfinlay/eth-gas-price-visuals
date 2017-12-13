@@ -49,6 +49,7 @@
     "beefy": "^2.1.8",
     "brfs": "^1.4.3",
     "browserify": "^14.0.0",
+    "eth-block-tracker": "^2.2.2",
     "watchify": "^3.9.0"
   }
 }

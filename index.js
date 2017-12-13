@@ -3,9 +3,10 @@ const h = require('react-hyperscript')
 const configureStore = require('./lib/store')
 const Root = require('./app/root.js')
 const Eth = require('ethjs')
+const BN = Eth.BN
 const metamask = require('metamascara')
-const gasses = require('./sample-blocks.json')
-let eth;
+const BlockTracker = require('eth-block-tracker')
+let eth, blockTracker;
 
 
 var body = document.querySelector('body')
@@ -17,6 +18,14 @@ window.addEventListener('load', function() {
 
   const provider = metamask.createDefaultProvider({})
   eth = new Eth(provider)
+  blockTracker = new BlockTracker({
+    provider,
+  })
+  blockTracker.start()
+  blockTracker.on('block', (block) => {
+    store.dispatch({ type: 'NEW_BLOCK', value: block })
+  })
+  trackOldBlocks()
 
   window.eth = eth
   store.dispatch({ type: 'ETH_LOADED', value: eth })
@@ -26,11 +35,40 @@ window.addEventListener('load', function() {
   startApp()
 })
 
+async function trackOldBlocks () {
+  blockTracker.once('block', async (block) => {
+    const blockNum = block.number
+
+    for (var i = 0; i < 20; i++) {
+      try {
+        const blockNumBn = new BN(blockNum.substr(2), 16)
+        const newNum = blockNumBn.subn(i).toString(10)
+        console.log('getting block ' + newNum)
+        const newBlock = await eth.getBlockByNumber(newNum, true)
+        newBlock.number = '0x' + newBlock.number.toString(16)
+        newBlock.transactions = newBlock.transactions.map((tx) => {
+          tx.gasPrice = tx.gasPrice.toString(16)
+          return tx
+        })
+        if (newBlock) {
+          store.dispatch({ type: 'PREVIOUS_BLOCK', value: newBlock })
+        }
+      } catch (e) {
+        console.log('skipping block ' + i)
+      }
+    }
+  })
+}
+
 const store = configureStore({
   nonce: 0,
   web3Found: false,
   loading: true,
-  recentBlocks: gasses,
+  recentBlocks: [],
+})
+
+store.subscribe(() => {
+  startApp()
 })
 
 function startApp(){
@@ -50,5 +88,5 @@ setInterval(async function () {
     type: 'ACCOUNT_CHANGED',
     value: account,
   })
-}, 200)
+}, 1000)
 

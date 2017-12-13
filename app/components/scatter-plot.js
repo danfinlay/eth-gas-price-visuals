@@ -14,15 +14,16 @@ function ScatterPlot () {
 }
 
 ScatterPlot.prototype.render = function () {
+  console.log('RENDERING SCATTER PLOT')
   const props = this.props
   const { recentBlocks } = props
   const txs = []
 
   recentBlocks.forEach((block) => {
     const hexNum = block.number
-    const blockNumber = new BN(hexNum, 16)
+    const blockNumber = new BN(hexNum.substr(2), 16)
     block.transactions.forEach((tx) => {
-      const hexGasPrice = tx.gasPrice
+      const hexGasPrice = tx.gasPrice.substr(2)
       const gasPrice = new BN(hexGasPrice, 16)
 
       txs.push({
@@ -31,6 +32,11 @@ ScatterPlot.prototype.render = function () {
       })
     })
   })
+
+  if (txs.length === 0) {
+    console.log('no txs found in ', txs)
+    return h('div', 'Loading...')
+  }
 
   const sorted = txs.sort((a, b) => {
     return a.gasPrice - b.gasPrice
@@ -42,6 +48,7 @@ ScatterPlot.prototype.render = function () {
   const filtered = sorted.filter((tx) => {
     return tx.gasPrice <= topPrice
   })
+  console.dir(filtered)
 
   const blockArr = filtered.map(tx => tx.blockNumber)
   const minBlock = Math.min.apply(null, blockArr)
