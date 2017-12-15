@@ -6,6 +6,8 @@ const BN = Eth.BN
 const gwei = new BN('1000000000', 10)
 
 module.exports = ScatterPlot
+
+//       http://recharts.org/#/en-US/
 const {ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend} = require('recharts');
 
 inherits(ScatterPlot, Component)
@@ -16,6 +18,7 @@ function ScatterPlot () {
 ScatterPlot.prototype.render = function () {
   const props = this.props
   const { recentBlocks } = props
+  const txMap = {}
   const txs = []
 
   recentBlocks.forEach((block) => {
@@ -25,12 +28,23 @@ ScatterPlot.prototype.render = function () {
       const hexGasPrice = tx.gasPrice.substr(2)
       const gasPrice = new BN(hexGasPrice, 16)
 
-      txs.push({
+      const newTx = {
         blockNumber: parseInt(blockNumber.toString(10)),
         gasPrice: parseInt(gasPrice.div(gwei).toString(10)),
-      })
+        count: 1,
+      }
+
+      const priors = txs.filter(pri => pri.gasPrice === newTx.gasPrice && pri.blockNumber === tx.blockNumber)
+      if (priors.length > 0) {
+        priors[0].count ++
+      } else {
+        txs.push(newTx)
+      }
     })
   })
+
+  const qtyArr = txs.map(tx => tx.count)
+  const maxQty = Math.max.apply(null, qtyArr)
 
   if (txs.length === 0) {
     return h('div', 'Loading...')
@@ -64,8 +78,6 @@ ScatterPlot.prototype.render = function () {
     h(XAxis, {
       dataKey: 'blockNumber',
       type: 'number',
-      name: 'Block',
-      unit: ' block',
       domain: range,
     }),
     h(YAxis, {
@@ -78,7 +90,7 @@ ScatterPlot.prototype.render = function () {
     h(Scatter, {
       name: 'Recent Transaction Costs',
       data: filtered,
-      fill: '#8884d8',
+      fill: '#888',
       stackOffset: 'expand',
     }),
     h(Tooltip, {

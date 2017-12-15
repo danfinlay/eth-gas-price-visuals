@@ -46,10 +46,11 @@ Home.prototype.render = function () {
       h('h1', `Gas Price Visualizer`),
 
       h('h3', [
-        'A quick way to start building Web Dapps on ',
+        'A graph of recent ',
         h('a', {
           href: 'https://ethereum.org/'
         }, 'Ethereum'),
+        ' transaction prices.',
       ]),
 
       !web3Found ?

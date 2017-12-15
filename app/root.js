@@ -16,10 +16,8 @@ function AppRoot () {
 }
 
 AppRoot.prototype.render = function () {
-  console.log('rendering root with store provider')
   const props = this.props
   const { store } = props
-  console.dir(store)
 
   return (
     h(Provider, {
