@@ -40,6 +40,8 @@ var gwei = new BN('1000000000', 10);
 
 module.exports = ScatterPlot;
 
+//       http://recharts.org/#/en-US/
+
 var _require = require('recharts'),
     ScatterChart = _require.ScatterChart,
     Scatter = _require.Scatter,
@@ -58,6 +60,7 @@ ScatterPlot.prototype.render = function () {
   var props = this.props;
   var recentBlocks = props.recentBlocks;
 
+  var txMap = {};
   var txs = [];
 
   recentBlocks.forEach(function (block) {
@@ -67,12 +70,27 @@ ScatterPlot.prototype.render = function () {
       var hexGasPrice = tx.gasPrice.substr(2);
       var gasPrice = new BN(hexGasPrice, 16);
 
-      txs.push({
+      var newTx = {
         blockNumber: parseInt(blockNumber.toString(10)),
-        gasPrice: parseInt(gasPrice.div(gwei).toString(10))
+        gasPrice: parseInt(gasPrice.div(gwei).toString(10)),
+        count: 1
+      };
+
+      var priors = txs.filter(function (pri) {
+        return pri.gasPrice === newTx.gasPrice && pri.blockNumber === tx.blockNumber;
       });
+      if (priors.length > 0) {
+        priors[0].count++;
+      } else {
+        txs.push(newTx);
+      }
     });
   });
+
+  var qtyArr = txs.map(function (tx) {
+    return tx.count;
+  });
+  var maxQty = Math.max.apply(null, qtyArr);
 
   if (txs.length === 0) {
     return h('div', 'Loading...');
@@ -107,8 +125,6 @@ ScatterPlot.prototype.render = function () {
   }, [h(XAxis, {
     dataKey: 'blockNumber',
     type: 'number',
-    name: 'Block',
-    unit: ' block',
     domain: range
   }), h(YAxis, {
     dataKey: 'gasPrice',
@@ -118,7 +134,7 @@ ScatterPlot.prototype.render = function () {
   }), h(CartesianGrid), h(Scatter, {
     name: 'Recent Transaction Costs',
     data: filtered,
-    fill: '#8884d8',
+    fill: '#888',
     stackOffset: 'expand'
   }), h(Tooltip, {
     cursor: {
@@ -181,9 +197,9 @@ Home.prototype.render = function () {
       color: 'grey',
       padding: '15px'
     }
-  }, [h('h1', 'Gas Price Visualizer'), h('h3', ['A quick way to start building Web Dapps on ', h('a', {
+  }, [h('h1', 'Gas Price Visualizer'), h('h3', ['A graph of recent ', h('a', {
     href: 'https://ethereum.org/'
-  }, 'Ethereum')]), !web3Found ? h('div', [h('You should get MetaMask for the full experience!'), h(MetaMaskLink, { style: { width: '250px' } })]) : loading ? h('span', 'Loading...') : h('div', [h(BarChart, { recentBlocks: recentBlocks }), h('br'), h('button', {
+  }, 'Ethereum'), ' transaction prices.']), !web3Found ? h('div', [h('You should get MetaMask for the full experience!'), h(MetaMaskLink, { style: { width: '250px' } })]) : loading ? h('span', 'Loading...') : h('div', [h(BarChart, { recentBlocks: recentBlocks }), h('br'), h('button', {
     onClick: function onClick() {
       return _this.sendTip();
     }
@@ -242,11 +258,9 @@ function AppRoot() {
 }
 
 AppRoot.prototype.render = function () {
-  console.log('rendering root with store provider');
   var props = this.props;
   var store = props.store;
 
-  console.dir(store);
 
   return h(Provider, {
     store: store
