@@ -47,6 +47,7 @@ var _require = require('recharts'),
     Scatter = _require.Scatter,
     XAxis = _require.XAxis,
     YAxis = _require.YAxis,
+    ZAxis = _require.ZAxis,
     CartesianGrid = _require.CartesianGrid,
     Tooltip = _require.Tooltip,
     Legend = _require.Legend;
@@ -77,7 +78,7 @@ ScatterPlot.prototype.render = function () {
       };
 
       var priors = txs.filter(function (pri) {
-        return pri.gasPrice === newTx.gasPrice && pri.blockNumber === tx.blockNumber;
+        return pri.gasPrice === newTx.gasPrice && pri.blockNumber === newTx.blockNumber;
       });
       if (priors.length > 0) {
         priors[0].count++;
@@ -116,6 +117,11 @@ ScatterPlot.prototype.render = function () {
   var maxBlock = Math.max.apply(null, blockArr);
   var range = [minBlock, maxBlock];
 
+  var counts = filtered.map(function (tx) {
+    return tx.count;
+  });
+  var zrange = [Math.min.apply(null, counts), Math.max.apply(null, counts)];
+
   return h(ScatterChart, {
     width: 400,
     height: 400,
@@ -131,6 +137,11 @@ ScatterPlot.prototype.render = function () {
     type: 'number',
     name: 'Gas Price',
     unit: ' gwei'
+  }), h(ZAxis, {
+    dataKey: 'count',
+    type: 'number',
+    name: 'Transaction Count',
+    range: zrange
   }), h(CartesianGrid), h(Scatter, {
     name: 'Recent Transaction Costs',
     data: filtered,
