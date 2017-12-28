@@ -8,7 +8,7 @@ const gwei = new BN('1000000000', 10)
 module.exports = ScatterPlot
 
 //       http://recharts.org/#/en-US/
-const {ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend} = require('recharts');
+const {ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend} = require('recharts');
 
 inherits(ScatterPlot, Component)
 function ScatterPlot () {
@@ -34,7 +34,7 @@ ScatterPlot.prototype.render = function () {
         count: 1,
       }
 
-      const priors = txs.filter(pri => pri.gasPrice === newTx.gasPrice && pri.blockNumber === tx.blockNumber)
+      const priors = txs.filter(pri => pri.gasPrice === newTx.gasPrice && pri.blockNumber === newTx.blockNumber)
       if (priors.length > 0) {
         priors[0].count ++
       } else {
@@ -68,6 +68,9 @@ ScatterPlot.prototype.render = function () {
   const maxBlock = Math.max.apply(null, blockArr)
   const range = [minBlock, maxBlock]
 
+  const counts = filtered.map(tx => tx.count)
+  const zrange = [Math.min.apply(null, counts), Math.max.apply(null, counts)]
+
   return h(ScatterChart, {
     width: 400,
     height: 400,
@@ -85,6 +88,12 @@ ScatterPlot.prototype.render = function () {
       type: 'number',
       name: 'Gas Price',
       unit: ' gwei'
+    }),
+    h(ZAxis, {
+      dataKey: 'count',
+      type: 'number',
+      name: 'Transaction Count',
+      range: zrange,
     }),
     h(CartesianGrid),
     h(Scatter, {
