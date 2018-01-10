@@ -28,7 +28,7 @@ MetaMaskLink.prototype.render = function () {
   })]);
 };
 
-},{"react":590,"react-hyperscript":539,"util":737,"xtend":740}],2:[function(require,module,exports){
+},{"react":590,"react-hyperscript":539,"util":738,"xtend":741}],2:[function(require,module,exports){
 'use strict';
 
 var Component = require('react').Component;
@@ -154,7 +154,7 @@ ScatterPlot.prototype.render = function () {
   })]);
 };
 
-},{"ethjs":167,"react":590,"react-hyperscript":539,"recharts":644,"util":737}],3:[function(require,module,exports){
+},{"ethjs":167,"react":590,"react-hyperscript":539,"recharts":644,"util":738}],3:[function(require,module,exports){
 'use strict';
 
 var inherits = require('util').inherits;
@@ -248,7 +248,7 @@ Home.prototype.sendTip = async function () {
   });
 };
 
-},{"./components/download-metamask":1,"./components/scatter-plot":2,"ethjs":167,"react":590,"react-hyperscript":539,"react-redux":543,"util":737,"xtend":740}],4:[function(require,module,exports){
+},{"./components/download-metamask":1,"./components/scatter-plot":2,"ethjs":167,"react":590,"react-hyperscript":539,"react-redux":543,"util":738,"xtend":741}],4:[function(require,module,exports){
 'use strict';
 
 var inherits = require('util').inherits;
@@ -278,7 +278,7 @@ AppRoot.prototype.render = function () {
   }, h(Home));
 };
 
-},{"./components/download-metamask":1,"./home":3,"ethjs":167,"react":590,"react-hyperscript":539,"react-redux":543,"util":737}],5:[function(require,module,exports){
+},{"./components/download-metamask":1,"./home":3,"ethjs":167,"react":590,"react-hyperscript":539,"react-redux":543,"util":738}],5:[function(require,module,exports){
 'use strict';
 
 var render = require('react-dom').render;
@@ -362,10 +362,18 @@ function startApp() {
 // Check for account changes:
 setInterval(async function () {
   var accounts = await eth.accounts();
-  var account = accounts[0];
+  var newAccount = accounts[0];
+
+  var _store$getState = store.getState(),
+      account = _store$getState.account;
+  // abort if account unchanged
+
+
+  if (newAccount === account) return;
+  // update account
   store.dispatch({
     type: 'ACCOUNT_CHANGED',
-    value: account
+    value: newAccount
   });
 }, 1000);
 
@@ -441,7 +449,7 @@ module.exports = function (state, action) {
   return extend(state);
 };
 
-},{"xtend":740}],7:[function(require,module,exports){
+},{"xtend":741}],7:[function(require,module,exports){
 'use strict';
 
 var createStore = require('redux').createStore;
@@ -460,7 +468,7 @@ function configureStore(initialState) {
   return createStoreWithMiddleware(rootReducer, initialState);
 }
 
-},{"./reducers":6,"redux":723,"redux-logger":716,"redux-thunk":717}],8:[function(require,module,exports){
+},{"./reducers":6,"redux":724,"redux-logger":717,"redux-thunk":718}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib/AsyncEventEmitter');
@@ -645,7 +653,7 @@ AsyncEventEmitter.prototype._beforeOrAfter = function(event, target, listener, b
   return this;
 };
 
-},{"async/eachSeries":13,"events":169,"util":737}],10:[function(require,module,exports){
+},{"async/eachSeries":13,"events":169,"util":738}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6930,7 +6938,7 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 },{"../core-js/symbol":31,"../core-js/symbol/iterator":32}],39:[function(require,module,exports){
 module.exports = require("regenerator-runtime");
 
-},{"regenerator-runtime":725}],40:[function(require,module,exports){
+},{"regenerator-runtime":726}],40:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -16388,7 +16396,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 })));
 
 },{}],144:[function(require,module,exports){
-// https://d3js.org/d3-format/ Version 1.2.1. Copyright 2017 Mike Bostock.
+// https://d3js.org/d3-format/ Version 1.2.2. Copyright 2018 Mike Bostock.
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -16618,7 +16626,7 @@ var formatLocale = function(locale) {
 
         // Compute the prefix and suffix.
         valuePrefix = (valueNegative ? (sign === "(" ? sign : "-") : sign === "-" || sign === "(" ? "" : sign) + valuePrefix;
-        valueSuffix = valueSuffix + (type === "s" ? prefixes[8 + prefixExponent / 3] : "") + (valueNegative && sign === "(" ? ")" : "");
+        valueSuffix = (type === "s" ? prefixes[8 + prefixExponent / 3] : "") + valueSuffix + (valueNegative && sign === "(" ? ")" : "");
 
         // Break the formatted value into the integer “value” part that can be
         // grouped, and fractional or exponential “suffix” part that is not.
@@ -21819,6 +21827,10 @@ var eos = function(stream, opts, callback) {
 		callback.call(stream, exitCode ? new Error('exited with error code: ' + exitCode) : null);
 	};
 
+	var onerror = function(err) {
+		callback.call(stream, err);
+	};
+
 	var onclose = function() {
 		if (readable && !(rs && rs.ended)) return callback.call(stream, new Error('premature close'));
 		if (writable && !(ws && ws.ended)) return callback.call(stream, new Error('premature close'));
@@ -21842,7 +21854,7 @@ var eos = function(stream, opts, callback) {
 
 	stream.on('end', onend);
 	stream.on('finish', onfinish);
-	if (opts.error !== false) stream.on('error', callback);
+	if (opts.error !== false) stream.on('error', onerror);
 	stream.on('close', onclose);
 
 	return function() {
@@ -21855,7 +21867,7 @@ var eos = function(stream, opts, callback) {
 		stream.removeListener('finish', onfinish);
 		stream.removeListener('exit', onexit);
 		stream.removeListener('end', onend);
-		stream.removeListener('error', callback);
+		stream.removeListener('error', onerror);
 		stream.removeListener('close', onclose);
 	};
 };
@@ -22498,7 +22510,7 @@ function createPayload(data){
   }, data)
 }
 
-},{"json-rpc-random-id":209,"xtend":740}],156:[function(require,module,exports){
+},{"json-rpc-random-id":209,"xtend":741}],156:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -23681,7 +23693,7 @@ module.exports = {
   formatInputs: formatInputs,
   formatOutputs: formatOutputs
 };
-},{"ethjs-schema":164,"ethjs-util":166,"number-to-bn":394,"strip-hex-prefix":730}],161:[function(require,module,exports){
+},{"ethjs-schema":164,"ethjs-util":166,"number-to-bn":394,"strip-hex-prefix":731}],161:[function(require,module,exports){
 'use strict';
 
 /**
@@ -23788,7 +23800,7 @@ HttpProvider.prototype.sendAsync = function (payload, callback) {
 };
 
 module.exports = HttpProvider;
-},{"xhr2":739}],162:[function(require,module,exports){
+},{"xhr2":740}],162:[function(require,module,exports){
 'use strict';
 
 var format = require('ethjs-format');
@@ -24571,7 +24583,7 @@ module.exports = {
   isHexString: isHexString
 };
 }).call(this,require("buffer").Buffer)
-},{"buffer":43,"is-hex-prefixed":200,"strip-hex-prefix":730}],167:[function(require,module,exports){
+},{"buffer":43,"is-hex-prefixed":200,"strip-hex-prefix":731}],167:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -33450,7 +33462,7 @@ module.exports = function numberToBN(arg) {
   throw new Error('[number-to-bn] while converting number ' + JSON.stringify(arg) + ' to BN.js instance, error: invalid number value. Value must be an integer, hex string, BN or BigNumber instance. Note, decimals are not supported.');
 }
 
-},{"bn.js":41,"strip-hex-prefix":730}],395:[function(require,module,exports){
+},{"bn.js":41,"strip-hex-prefix":731}],395:[function(require,module,exports){
 const { Duplex } = require('readable-stream')
 const endOfStream = require('end-of-stream')
 const once = require('once')
@@ -33794,7 +33806,7 @@ var ObservableStore = function (_DuplexStream) {
 
 module.exports = ObservableStore;
 
-},{"stream":728,"xtend":740}],398:[function(require,module,exports){
+},{"stream":729,"xtend":741}],398:[function(require,module,exports){
 var wrappy = require('wrappy')
 module.exports = wrappy(once)
 module.exports.strict = wrappy(onceStrict)
@@ -33838,7 +33850,7 @@ function onceStrict (fn) {
   return f
 }
 
-},{"wrappy":738}],399:[function(require,module,exports){
+},{"wrappy":739}],399:[function(require,module,exports){
 (function (process){
 // Generated by CoffeeScript 1.12.2
 (function() {
@@ -34024,7 +34036,7 @@ PostMessageStream.prototype._write = function (data, encoding, cb) {
 
 function noop () {}
 
-},{"readable-stream":601,"util":737}],402:[function(require,module,exports){
+},{"readable-stream":601,"util":738}],402:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -51648,7 +51660,7 @@ function wrapActionCreators(actionCreators) {
     return (0, _redux.bindActionCreators)(actionCreators, dispatch);
   };
 }
-},{"redux":723}],548:[function(require,module,exports){
+},{"redux":724}],548:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -57667,7 +57679,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":592,"./internal/streams/BufferList":597,"./internal/streams/destroy":598,"./internal/streams/stream":599,"_process":403,"core-util-is":139,"events":169,"inherits":197,"isarray":201,"process-nextick-args":402,"safe-buffer":727,"string_decoder/":729,"util":42}],595:[function(require,module,exports){
+},{"./_stream_duplex":592,"./internal/streams/BufferList":597,"./internal/streams/destroy":598,"./internal/streams/stream":599,"_process":403,"core-util-is":139,"events":169,"inherits":197,"isarray":201,"process-nextick-args":402,"safe-buffer":728,"string_decoder/":730,"util":42}],595:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -58549,7 +58561,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":592,"./internal/streams/destroy":598,"./internal/streams/stream":599,"_process":403,"core-util-is":139,"inherits":197,"process-nextick-args":402,"safe-buffer":727,"util-deprecate":734}],597:[function(require,module,exports){
+},{"./_stream_duplex":592,"./internal/streams/destroy":598,"./internal/streams/stream":599,"_process":403,"core-util-is":139,"inherits":197,"process-nextick-args":402,"safe-buffer":728,"util-deprecate":735}],597:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -58624,7 +58636,7 @@ module.exports = function () {
 
   return BufferList;
 }();
-},{"safe-buffer":727}],598:[function(require,module,exports){
+},{"safe-buffer":728}],598:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -59380,6 +59392,10 @@ var _isEqual2 = require('lodash/isEqual');
 
 var _isEqual3 = _interopRequireDefault(_isEqual2);
 
+var _isNaN2 = require('lodash/isNaN');
+
+var _isNaN3 = _interopRequireDefault(_isNaN2);
+
 var _isFunction2 = require('lodash/isFunction');
 
 var _isFunction3 = _interopRequireDefault(_isFunction2);
@@ -59676,11 +59692,13 @@ var Area = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
           animationBegin = _props6.animationBegin,
           animationDuration = _props6.animationDuration,
           animationEasing = _props6.animationEasing,
-          animationId = _props6.animationId;
+          animationId = _props6.animationId,
+          id = _props6.id;
       var _state = this.state,
           prevPoints = _state.prevPoints,
           prevBaseLine = _state.prevBaseLine;
 
+      var clipPathId = (0, _isNil3.default)(id) ? this.id : id;
 
       return _react2.default.createElement(
         _reactSmooth2.default,
@@ -59716,6 +59734,9 @@ var Area = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
             if ((0, _DataUtils.isNumber)(baseLine)) {
               var interpolator = (0, _DataUtils.interpolateNumber)(prevBaseLine, baseLine);
               stepBaseLine = interpolator(t);
+            } else if ((0, _isNil3.default)(baseLine) || (0, _isNaN3.default)(baseLine)) {
+              var _interpolator = (0, _DataUtils.interpolateNumber)(prevBaseLine, 0);
+              stepBaseLine = _interpolator(t);
             } else {
               stepBaseLine = baseLine.map(function (entry, index) {
                 if (prevBaseLine[index]) {
@@ -59741,13 +59762,13 @@ var Area = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
               null,
               _react2.default.createElement(
                 'clipPath',
-                { id: 'animationClipPath-' + _this3.id },
+                { id: 'animationClipPath-' + clipPathId },
                 _this3.renderClipRect(t)
               )
             ),
             _react2.default.createElement(
               _Layer2.default,
-              { clipPath: 'url(#animationClipPath-' + _this3.id + ')' },
+              { clipPath: 'url(#animationClipPath-' + clipPathId + ')' },
               _this3.renderAreaStatically(points, baseLine, needClip)
             )
           );
@@ -59787,7 +59808,8 @@ var Area = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
           yAxis = _props8.yAxis,
           width = _props8.width,
           height = _props8.height,
-          isAnimationActive = _props8.isAnimationActive;
+          isAnimationActive = _props8.isAnimationActive,
+          id = _props8.id;
 
 
       if (hide || !points || !points.length) {
@@ -59799,6 +59821,7 @@ var Area = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
       var hasSinglePoint = points.length === 1;
       var layerClass = (0, _classnames2.default)('recharts-area', className);
       var needClip = xAxis && xAxis.allowDataOverflow || yAxis && yAxis.allowDataOverflow;
+      var clipPathId = (0, _isNil3.default)(id) ? this.id : id;
 
       return _react2.default.createElement(
         _Layer2.default,
@@ -59808,7 +59831,7 @@ var Area = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
           null,
           _react2.default.createElement(
             'clipPath',
-            { id: 'clipPath-' + this.id },
+            { id: 'clipPath-' + clipPathId },
             _react2.default.createElement('rect', { x: left, y: top, width: width, height: height })
           )
         ) : null,
@@ -59848,14 +59871,16 @@ var Area = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
     y: _propTypes2.default.number,
     value: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.array])
   })),
+
   onAnimationStart: _propTypes2.default.func,
   onAnimationEnd: _propTypes2.default.func,
-
   animationId: _propTypes2.default.number,
   isAnimationActive: _propTypes2.default.bool,
   animationBegin: _propTypes2.default.number,
   animationDuration: _propTypes2.default.number,
-  animationEasing: _propTypes2.default.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear'])
+  animationEasing: _propTypes2.default.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
+
+  id: _propTypes2.default.string
 }), _class2.defaultProps = {
   stroke: '#3182bd',
   fill: '#3182bd',
@@ -59988,12 +60013,16 @@ var Area = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
 }, _temp2)) || _class;
 
 exports.default = Area;
-},{"../component/LabelList":637,"../container/Layer":642,"../shape/Curve":653,"../shape/Dot":654,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isArray":349,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNil":357,"prop-types":408,"react":590,"react-smooth":558}],609:[function(require,module,exports){
+},{"../component/LabelList":637,"../container/Layer":642,"../shape/Curve":653,"../shape/Dot":654,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isArray":349,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNaN":356,"lodash/isNil":357,"prop-types":408,"react":590,"react-smooth":558}],609:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _isNil2 = require('lodash/isNil');
+
+var _isNil3 = _interopRequireDefault(_isNil2);
 
 var _isEqual2 = require('lodash/isEqual');
 
@@ -60335,7 +60364,8 @@ var Bar = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Comp
           width = _props5.width,
           height = _props5.height,
           isAnimationActive = _props5.isAnimationActive,
-          background = _props5.background;
+          background = _props5.background,
+          id = _props5.id;
 
       if (hide || !data || !data.length) {
         return null;
@@ -60345,6 +60375,7 @@ var Bar = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Comp
 
       var layerClass = (0, _classnames2.default)('recharts-bar', className);
       var needClip = xAxis && xAxis.allowDataOverflow || yAxis && yAxis.allowDataOverflow;
+      var clipPathId = (0, _isNil3.default)(id) ? this.id : id;
 
       return _react2.default.createElement(
         _Layer2.default,
@@ -60354,7 +60385,7 @@ var Bar = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Comp
           null,
           _react2.default.createElement(
             'clipPath',
-            { id: 'clipPath-' + this.id },
+            { id: 'clipPath-' + clipPathId },
             _react2.default.createElement('rect', { x: left, y: top, width: width, height: height })
           )
         ) : null,
@@ -60362,7 +60393,7 @@ var Bar = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Comp
           _Layer2.default,
           {
             className: 'recharts-bar-rectangles',
-            clipPath: needClip ? 'url(#clipPath-' + this.id + ')' : null
+            clipPath: needClip ? 'url(#clipPath-' + clipPathId + ')' : null
           },
           background ? this.renderBackground() : null,
           this.renderRectangles()
@@ -60407,7 +60438,8 @@ var Bar = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Comp
   isAnimationActive: _propTypes2.default.bool,
   animationBegin: _propTypes2.default.number,
   animationDuration: _propTypes2.default.number,
-  animationEasing: _propTypes2.default.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear'])
+  animationEasing: _propTypes2.default.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
+  id: _propTypes2.default.string
 }), _class2.defaultProps = {
   xAxisId: 0,
   yAxisId: 0,
@@ -60523,7 +60555,7 @@ var Bar = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Comp
 }, _temp2)) || _class;
 
 exports.default = Bar;
-},{"../component/Cell":633,"../component/LabelList":637,"../container/Layer":642,"../shape/Rectangle":656,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"./ErrorBar":613,"classnames":44,"lodash/isArray":349,"lodash/isEqual":353,"lodash/isFunction":354,"prop-types":408,"react":590,"react-smooth":558}],610:[function(require,module,exports){
+},{"../component/Cell":633,"../component/LabelList":637,"../container/Layer":642,"../shape/Rectangle":656,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"./ErrorBar":613,"classnames":44,"lodash/isArray":349,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNil":357,"prop-types":408,"react":590,"react-smooth":558}],610:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -60576,6 +60608,8 @@ var _Text = require('../component/Text');
 var _Text2 = _interopRequireDefault(_Text);
 
 var _DataUtils = require('../util/DataUtils');
+
+var _CssPrefixUtils = require('../util/CssPrefixUtils');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -61044,6 +61078,7 @@ var Brush = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
 
       var layerClass = (0, _classnames2.default)('recharts-brush', className);
       var isPanoramic = _react2.default.Children.count(children) === 1;
+      var style = (0, _CssPrefixUtils.generatePrefixStyle)('userSelect', 'none');
 
       return _react2.default.createElement(
         _Layer2.default,
@@ -61053,7 +61088,8 @@ var Brush = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
           onMouseLeave: this.handleLeaveWrapper,
           onMouseUp: this.handleDragEnd,
           onTouchEnd: this.handleDragEnd,
-          onTouchMove: this.handleTouchMove
+          onTouchMove: this.handleTouchMove,
+          style: style
         },
         this.renderBackground(),
         isPanoramic && this.renderPanorama(),
@@ -61102,7 +61138,7 @@ var Brush = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
 }, _temp)) || _class;
 
 exports.default = Brush;
-},{"../component/Text":640,"../container/Layer":642,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PureRender":666,"classnames":44,"d3-scale":147,"lodash/isFunction":354,"lodash/range":375,"prop-types":408,"react":590}],611:[function(require,module,exports){
+},{"../component/Text":640,"../container/Layer":642,"../util/ChartUtils":660,"../util/CssPrefixUtils":661,"../util/DataUtils":663,"../util/PureRender":667,"classnames":44,"d3-scale":147,"lodash/isFunction":354,"lodash/range":375,"prop-types":408,"react":590}],611:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -61392,7 +61428,8 @@ var CartesianAxis = (_temp = _class = function (_Component) {
         }, axisProps, {
           stroke: 'none', fill: stroke
         }, customTickProps, tickCoord, {
-          index: i, payload: entry
+          index: i, payload: entry,
+          visibleTicksCount: finalTicks.length
         });
 
         return _react2.default.createElement(
@@ -61681,7 +61718,7 @@ var CartesianAxis = (_temp = _class = function (_Component) {
   interval: 'preserveEnd'
 }, _temp);
 exports.default = CartesianAxis;
-},{"../component/Label":636,"../component/Text":640,"../container/Layer":642,"../util/DOMUtils":661,"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isFunction":354,"prop-types":408,"react":590}],612:[function(require,module,exports){
+},{"../component/Label":636,"../component/Text":640,"../container/Layer":642,"../util/DOMUtils":662,"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isFunction":354,"prop-types":408,"react":590}],612:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -61847,6 +61884,117 @@ var CartesianGrid = (0, _PureRender2.default)(_class = (_temp = _class2 = functi
         items
       );
     }
+
+    /**
+     * Draw vertical grid stripes filled by colors
+     * @param {Array} verticalPoints either passed in as props or generated from function
+     * @return {Group} Vertical stripes
+     */
+
+  }, {
+    key: 'renderVerticalStripes',
+    value: function renderVerticalStripes(verticalPoints) {
+      var verticalFill = this.props.verticalFill;
+
+      if (!verticalFill || !verticalFill.length) {
+        return null;
+      }
+
+      var _props3 = this.props,
+          fillOpacity = _props3.fillOpacity,
+          x = _props3.x,
+          y = _props3.y,
+          width = _props3.width,
+          height = _props3.height;
+
+      var verticalPointsUpdated = verticalPoints.slice().sort(function (a, b) {
+        return a - b > 0;
+      });
+
+      if (x !== verticalPointsUpdated[0]) {
+        verticalPointsUpdated.unshift(0);
+      }
+
+      var items = verticalPointsUpdated.map(function (entry, i) {
+        var lineWidth = verticalPointsUpdated[i + 1] ? verticalPointsUpdated[i + 1] - entry : x + width - entry;
+        if (lineWidth <= 0) {
+          return null;
+        }
+        var colorIndex = i % verticalFill.length;
+        return _react2.default.createElement('rect', {
+          key: i,
+          x: Math.round(entry + x - x),
+          y: y,
+          width: lineWidth,
+          height: height,
+          stroke: 'none',
+          fill: verticalFill[colorIndex],
+          fillOpacity: fillOpacity,
+          className: 'recharts-cartesian-grid-bg'
+        });
+      });
+
+      return _react2.default.createElement(
+        'g',
+        { className: 'recharts-cartesian-gridstripes-vertical' },
+        items
+      );
+    }
+
+    /**
+     * Draw horizontal grid stripes filled by colors
+     * @param {Array} horizontalPoints either passed in as props or generated from function
+     * @return {Group} Horizontal stripes
+     */
+
+  }, {
+    key: 'renderHorizontalStripes',
+    value: function renderHorizontalStripes(horizontalPoints) {
+      var horizontalFill = this.props.horizontalFill;
+
+      if (!horizontalFill || !horizontalFill.length) {
+        return null;
+      }
+
+      var _props4 = this.props,
+          fillOpacity = _props4.fillOpacity,
+          x = _props4.x,
+          y = _props4.y,
+          width = _props4.width,
+          height = _props4.height;
+
+      var horizontalPointsUpdated = horizontalPoints.slice().sort(function (a, b) {
+        return a - b > 0;
+      });
+      if (y !== horizontalPointsUpdated[0]) {
+        horizontalPointsUpdated.unshift(0);
+      }
+
+      var items = horizontalPointsUpdated.map(function (entry, i) {
+        var lineHeight = horizontalPointsUpdated[i + 1] ? horizontalPointsUpdated[i + 1] - entry : y + height - entry;
+        if (lineHeight <= 0) {
+          return null;
+        }
+        var colorIndex = i % horizontalFill.length;
+        return _react2.default.createElement('rect', {
+          key: i,
+          y: Math.round(entry + y - y),
+          x: x,
+          height: lineHeight,
+          width: width,
+          stroke: 'none',
+          fill: horizontalFill[colorIndex],
+          fillOpacity: fillOpacity,
+          className: 'recharts-cartesian-grid-bg'
+        });
+      });
+
+      return _react2.default.createElement(
+        'g',
+        { className: 'recharts-cartesian-gridstripes-horizontal' },
+        items
+      );
+    }
   }, {
     key: 'renderBackground',
     value: function renderBackground() {
@@ -61857,12 +62005,12 @@ var CartesianGrid = (0, _PureRender2.default)(_class = (_temp = _class2 = functi
         return null;
       }
 
-      var _props3 = this.props,
-          fillOpacity = _props3.fillOpacity,
-          x = _props3.x,
-          y = _props3.y,
-          width = _props3.width,
-          height = _props3.height;
+      var _props5 = this.props,
+          fillOpacity = _props5.fillOpacity,
+          x = _props5.x,
+          y = _props5.y,
+          width = _props5.width,
+          height = _props5.height;
 
 
       return _react2.default.createElement('rect', {
@@ -61879,29 +62027,29 @@ var CartesianGrid = (0, _PureRender2.default)(_class = (_temp = _class2 = functi
   }, {
     key: 'render',
     value: function render() {
-      var _props4 = this.props,
-          x = _props4.x,
-          y = _props4.y,
-          width = _props4.width,
-          height = _props4.height,
-          horizontal = _props4.horizontal,
-          vertical = _props4.vertical,
-          horizontalCoordinatesGenerator = _props4.horizontalCoordinatesGenerator,
-          verticalCoordinatesGenerator = _props4.verticalCoordinatesGenerator,
-          xAxis = _props4.xAxis,
-          yAxis = _props4.yAxis,
-          offset = _props4.offset,
-          chartWidth = _props4.chartWidth,
-          chartHeight = _props4.chartHeight;
+      var _props6 = this.props,
+          x = _props6.x,
+          y = _props6.y,
+          width = _props6.width,
+          height = _props6.height,
+          horizontal = _props6.horizontal,
+          vertical = _props6.vertical,
+          horizontalCoordinatesGenerator = _props6.horizontalCoordinatesGenerator,
+          verticalCoordinatesGenerator = _props6.verticalCoordinatesGenerator,
+          xAxis = _props6.xAxis,
+          yAxis = _props6.yAxis,
+          offset = _props6.offset,
+          chartWidth = _props6.chartWidth,
+          chartHeight = _props6.chartHeight;
 
 
       if (!(0, _DataUtils.isNumber)(width) || width <= 0 || !(0, _DataUtils.isNumber)(height) || height <= 0 || !(0, _DataUtils.isNumber)(x) || x !== +x || !(0, _DataUtils.isNumber)(y) || y !== +y) {
         return null;
       }
 
-      var _props5 = this.props,
-          horizontalPoints = _props5.horizontalPoints,
-          verticalPoints = _props5.verticalPoints;
+      var _props7 = this.props,
+          horizontalPoints = _props7.horizontalPoints,
+          verticalPoints = _props7.verticalPoints;
 
       // No horizontal points are specified
 
@@ -61921,7 +62069,9 @@ var CartesianGrid = (0, _PureRender2.default)(_class = (_temp = _class2 = functi
         { className: 'recharts-cartesian-grid' },
         this.renderBackground(),
         horizontal && this.renderHorizontal(horizontalPoints),
-        vertical && this.renderVertical(verticalPoints)
+        vertical && this.renderVertical(verticalPoints),
+        horizontal && this.renderHorizontalStripes(horizontalPoints),
+        vertical && this.renderVerticalStripes(verticalPoints)
       );
     }
   }]);
@@ -61942,7 +62092,9 @@ var CartesianGrid = (0, _PureRender2.default)(_class = (_temp = _class2 = functi
   yAxis: _propTypes2.default.object,
   offset: _propTypes2.default.object,
   chartWidth: _propTypes2.default.number,
-  chartHeight: _propTypes2.default.number
+  chartHeight: _propTypes2.default.number,
+  verticalFill: _propTypes2.default.arrayOf(_propTypes2.default.string),
+  horizontalFill: _propTypes2.default.arrayOf(_propTypes2.default.string)
 }), _class2.defaultProps = {
   horizontal: true,
   vertical: true,
@@ -61952,11 +62104,14 @@ var CartesianGrid = (0, _PureRender2.default)(_class = (_temp = _class2 = functi
   verticalPoints: [],
 
   stroke: '#ccc',
-  fill: 'none'
+  fill: 'none',
+  // The fill of colors of grid lines
+  verticalFill: [],
+  horizontalFill: []
 }, _temp)) || _class;
 
 exports.default = CartesianGrid;
-},{"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"lodash/isFunction":354,"prop-types":408,"react":590}],613:[function(require,module,exports){
+},{"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"lodash/isFunction":354,"prop-types":408,"react":590}],613:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -62117,7 +62272,7 @@ var ErrorBar = (_temp = _class = function (_Component) {
   layout: 'horizontal'
 }, _temp);
 exports.default = ErrorBar;
-},{"../container/Layer":642,"../util/ReactUtils":667,"prop-types":408,"react":590}],614:[function(require,module,exports){
+},{"../container/Layer":642,"../util/ReactUtils":668,"prop-types":408,"react":590}],614:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -62272,9 +62427,12 @@ var Line = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
     key: 'getTotalLength',
     value: function getTotalLength() {
       var curveDom = this.mainCurve;
-      var totalLength = curveDom && curveDom.getTotalLength && curveDom.getTotalLength() || 0;
 
-      return totalLength;
+      try {
+        return curveDom && curveDom.getTotalLength && curveDom.getTotalLength() || 0;
+      } catch (err) {
+        return 0;
+      }
     }
   }, {
     key: 'getStrokeDasharray',
@@ -62413,12 +62571,14 @@ var Line = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
       var _props4 = this.props,
           type = _props4.type,
           layout = _props4.layout,
-          connectNulls = _props4.connectNulls;
+          connectNulls = _props4.connectNulls,
+          id = _props4.id;
 
+      var clipPathId = (0, _isNil3.default)(id) ? this.id : id;
       var curveProps = _extends({}, (0, _ReactUtils.getPresentationAttributes)(this.props), (0, _ReactUtils.filterEventAttributes)(this.props), {
         fill: 'none',
         className: 'recharts-line-curve',
-        clipPath: needClip ? 'url(#clipPath-' + this.id + ')' : null,
+        clipPath: needClip ? 'url(#clipPath-' + clipPathId + ')' : null,
         points: points
       }, props, {
         type: type, layout: layout, connectNulls: connectNulls
@@ -62531,7 +62691,8 @@ var Line = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
           left = _props7.left,
           width = _props7.width,
           height = _props7.height,
-          isAnimationActive = _props7.isAnimationActive;
+          isAnimationActive = _props7.isAnimationActive,
+          id = _props7.id;
 
 
       if (hide || !points || !points.length) {
@@ -62543,6 +62704,7 @@ var Line = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
       var hasSinglePoint = points.length === 1;
       var layerClass = (0, _classnames2.default)('recharts-line', className);
       var needClip = xAxis && xAxis.allowDataOverflow || yAxis && yAxis.allowDataOverflow;
+      var clipPathId = (0, _isNil3.default)(id) ? this.id : id;
 
       return _react2.default.createElement(
         _Layer2.default,
@@ -62552,7 +62714,7 @@ var Line = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
           null,
           _react2.default.createElement(
             'clipPath',
-            { id: 'clipPath-' + this.id },
+            { id: 'clipPath-' + clipPathId },
             _react2.default.createElement('rect', { x: left, y: top, width: width, height: height })
           )
         ) : null,
@@ -62599,7 +62761,8 @@ var Line = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
   animationBegin: _propTypes2.default.number,
   animationDuration: _propTypes2.default.number,
   animationEasing: _propTypes2.default.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
-  animationId: _propTypes2.default.number
+  animationId: _propTypes2.default.number,
+  id: _propTypes2.default.string
 }), _class2.defaultProps = {
   xAxisId: 0,
   yAxisId: 0,
@@ -62656,7 +62819,7 @@ var Line = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Com
 }, _temp2)) || _class;
 
 exports.default = Line;
-},{"../component/LabelList":637,"../container/Layer":642,"../shape/Curve":653,"../shape/Dot":654,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"./ErrorBar":613,"classnames":44,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNil":357,"prop-types":408,"react":590,"react-smooth":558}],615:[function(require,module,exports){
+},{"../component/LabelList":637,"../container/Layer":642,"../shape/Curve":653,"../shape/Dot":654,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"./ErrorBar":613,"classnames":44,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNil":357,"prop-types":408,"react":590,"react-smooth":558}],615:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -62875,7 +63038,7 @@ var ReferenceArea = (0, _PureRender2.default)(_class = (_temp = _class2 = functi
 }, _temp)) || _class;
 
 exports.default = ReferenceArea;
-},{"../component/Label":636,"../container/Layer":642,"../shape/Rectangle":656,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isFunction":354,"prop-types":408,"react":590}],616:[function(require,module,exports){
+},{"../component/Label":636,"../container/Layer":642,"../shape/Rectangle":656,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isFunction":354,"prop-types":408,"react":590}],616:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -63058,7 +63221,7 @@ var ReferenceDot = (0, _PureRender2.default)(_class = (_temp = _class2 = functio
 }, _temp)) || _class;
 
 exports.default = ReferenceDot;
-},{"../component/Label":636,"../container/Layer":642,"../shape/Dot":654,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isFunction":354,"prop-types":408,"react":590}],617:[function(require,module,exports){
+},{"../component/Label":636,"../container/Layer":642,"../shape/Dot":654,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isFunction":354,"prop-types":408,"react":590}],617:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -63261,7 +63424,7 @@ var ReferenceLine = (0, _PureRender2.default)(_class = (_temp = _class2 = functi
 }, _temp)) || _class;
 
 exports.default = ReferenceLine;
-},{"../component/Label":636,"../container/Layer":642,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isFunction":354,"prop-types":408,"react":590}],618:[function(require,module,exports){
+},{"../component/Label":636,"../container/Layer":642,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isFunction":354,"prop-types":408,"react":590}],618:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -63616,7 +63779,8 @@ var Scatter = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_
           left = _props7.left,
           top = _props7.top,
           width = _props7.width,
-          height = _props7.height;
+          height = _props7.height,
+          id = _props7.id;
 
       if (hide || !points || !points.length) {
         return null;
@@ -63627,19 +63791,20 @@ var Scatter = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_
 
       var layerClass = (0, _classnames2.default)('recharts-scatter', className);
       var needClip = xAxis && xAxis.allowDataOverflow || yAxis && yAxis.allowDataOverflow;
+      var clipPathId = (0, _isNil3.default)(id) ? this.id : id;
 
       return _react2.default.createElement(
         _Layer2.default,
         {
           className: layerClass,
-          clipPath: needClip ? 'url(#clipPath-' + this.id + ')' : null
+          clipPath: needClip ? 'url(#clipPath-' + clipPathId + ')' : null
         },
         needClip ? _react2.default.createElement(
           'defs',
           null,
           _react2.default.createElement(
             'clipPath',
-            { id: 'clipPath-' + this.id },
+            { id: 'clipPath-' + clipPathId },
             _react2.default.createElement('rect', { x: left, y: top, width: width, height: height })
           )
         ) : null,
@@ -63746,6 +63911,7 @@ var Scatter = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_
     return _extends({}, entry, { cx: cx, cy: cy,
       x: cx - radius,
       y: cy - radius,
+      xAxis: xAxis, yAxis: yAxis, zAxis: zAxis,
       width: 2 * radius,
       height: 2 * radius,
       size: size,
@@ -63764,7 +63930,7 @@ var Scatter = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_
 }, _temp2)) || _class;
 
 exports.default = Scatter;
-},{"../component/Cell":633,"../component/LabelList":637,"../container/Layer":642,"../shape/Curve":653,"../shape/Symbols":658,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"./ErrorBar":613,"./ZAxis":621,"classnames":44,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNil":357,"prop-types":408,"react":590,"react-smooth":558}],619:[function(require,module,exports){
+},{"../component/Cell":633,"../component/LabelList":637,"../container/Layer":642,"../shape/Curve":653,"../shape/Symbols":658,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"./ErrorBar":613,"./ZAxis":621,"classnames":44,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNil":357,"prop-types":408,"react":590,"react-smooth":558}],619:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -63817,6 +63983,7 @@ var XAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
   return XAxis;
 }(_react.Component), _class2.displayName = 'XAxis', _class2.propTypes = {
   allowDecimals: _propTypes2.default.bool,
+  allowDuplicatedCategory: _propTypes2.default.bool,
   hide: _propTypes2.default.bool,
   // The name of data displayed in the axis
   name: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.number]),
@@ -63869,11 +64036,12 @@ var XAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
   padding: { left: 0, right: 0 },
   allowDataOverflow: false,
   scale: 'auto',
-  reversed: false
+  reversed: false,
+  allowDuplicatedCategory: true
 }, _temp)) || _class;
 
 exports.default = XAxis;
-},{"../util/PureRender":666,"../util/ReactUtils":667,"prop-types":408,"react":590}],620:[function(require,module,exports){
+},{"../util/PureRender":667,"../util/ReactUtils":668,"prop-types":408,"react":590}],620:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -63924,6 +64092,7 @@ var YAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
   return YAxis;
 }(_react.Component), _class2.displayName = 'YAxis', _class2.propTypes = {
   allowDecimals: _propTypes2.default.bool,
+  allowDuplicatedCategory: _propTypes2.default.bool,
   hide: _propTypes2.default.bool,
   // The name of data displayed in the axis
   name: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.number]),
@@ -63963,6 +64132,7 @@ var YAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
   interval: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.oneOf(['preserveStart', 'preserveEnd', 'preserveStartEnd'])]),
   reversed: _propTypes2.default.bool
 }, _class2.defaultProps = {
+  allowDuplicatedCategory: true,
   allowDecimals: true,
   hide: false,
   orientation: 'left',
@@ -63980,7 +64150,7 @@ var YAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
 }, _temp)) || _class;
 
 exports.default = YAxis;
-},{"../util/PureRender":666,"prop-types":408,"react":590}],621:[function(require,module,exports){
+},{"../util/PureRender":667,"prop-types":408,"react":590}],621:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -64050,7 +64220,7 @@ var ZAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
 }, _temp)) || _class;
 
 exports.default = ZAxis;
-},{"../util/PureRender":666,"prop-types":408,"react":590}],622:[function(require,module,exports){
+},{"../util/PureRender":667,"prop-types":408,"react":590}],622:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -64266,7 +64436,7 @@ exports.default = (0, _generateCategoricalChart2.default)({
     outerRadius: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string])
   }
 });
-},{"../polar/Pie":645,"../polar/PolarAngleAxis":646,"../polar/PolarRadiusAxis":648,"../util/PolarUtils":665,"./generateCategoricalChart":632,"prop-types":408}],627:[function(require,module,exports){
+},{"../polar/Pie":645,"../polar/PolarAngleAxis":646,"../polar/PolarRadiusAxis":648,"../util/PolarUtils":666,"./generateCategoricalChart":632,"prop-types":408}],627:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -64307,8 +64477,8 @@ exports.default = (0, _generateCategoricalChart2.default)({
   formatAxisMap: _PolarUtils.formatAxisMap,
   defaultProps: {
     layout: 'centric',
-    startAngle: 360,
-    endAngle: 0,
+    startAngle: 90,
+    endAngle: -270,
     cx: '50%',
     cy: '50%',
     innerRadius: 0,
@@ -64324,7 +64494,7 @@ exports.default = (0, _generateCategoricalChart2.default)({
     outerRadius: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string])
   }
 });
-},{"../polar/PolarAngleAxis":646,"../polar/PolarRadiusAxis":648,"../polar/Radar":649,"../util/PolarUtils":665,"./generateCategoricalChart":632,"prop-types":408}],628:[function(require,module,exports){
+},{"../polar/PolarAngleAxis":646,"../polar/PolarRadiusAxis":648,"../polar/Radar":649,"../util/PolarUtils":666,"./generateCategoricalChart":632,"prop-types":408}],628:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -64383,7 +64553,7 @@ exports.default = (0, _generateCategoricalChart2.default)({
     outerRadius: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string])
   }
 });
-},{"../polar/PolarAngleAxis":646,"../polar/PolarRadiusAxis":648,"../polar/RadialBar":650,"../util/PolarUtils":665,"./generateCategoricalChart":632,"prop-types":408}],629:[function(require,module,exports){
+},{"../polar/PolarAngleAxis":646,"../polar/PolarRadiusAxis":648,"../polar/RadialBar":650,"../util/PolarUtils":666,"./generateCategoricalChart":632,"prop-types":408}],629:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -64809,7 +64979,7 @@ var Sankey = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Co
           nameKey = _props.nameKey;
 
       if (nextProps.data !== data || nextProps.width !== width || nextProps.height !== height || !(0, _PureRender.shallowEqual)(nextProps.margin, margin) || nextProps.iterations !== iterations || nextProps.nodeWidth !== nodeWidth || nextProps.nodePadding !== nodePadding || nextProps.nameKey !== nameKey) {
-        this.setState(this.createDefaultState(this.props));
+        this.setState(this.createDefaultState(nextProps));
       }
     }
     /**
@@ -65144,7 +65314,7 @@ var Sankey = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Co
 }, _temp)) || _class;
 
 exports.default = Sankey;
-},{"../component/Tooltip":641,"../container/Layer":642,"../container/Surface":643,"../shape/Rectangle":656,"../util/ChartUtils":660,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isFunction":354,"lodash/maxBy":368,"lodash/min":370,"lodash/sumBy":379,"prop-types":408,"react":590}],630:[function(require,module,exports){
+},{"../component/Tooltip":641,"../container/Layer":642,"../container/Surface":643,"../shape/Rectangle":656,"../util/ChartUtils":660,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isFunction":354,"lodash/maxBy":368,"lodash/min":370,"lodash/sumBy":379,"prop-types":408,"react":590}],630:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -65754,7 +65924,7 @@ var Treemap = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_
 }, _temp2)) || _class;
 
 exports.default = Treemap;
-},{"../component/Tooltip":641,"../container/Layer":642,"../container/Surface":643,"../shape/Rectangle":656,"../util/ChartUtils":660,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isFunction":354,"lodash/isNaN":356,"prop-types":408,"react":590,"react-smooth":558}],632:[function(require,module,exports){
+},{"../component/Tooltip":641,"../container/Layer":642,"../container/Surface":643,"../shape/Rectangle":656,"../util/ChartUtils":660,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isFunction":354,"lodash/isNaN":356,"prop-types":408,"react":590,"react-smooth":558}],632:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -65769,21 +65939,17 @@ var _isFunction2 = require('lodash/isFunction');
 
 var _isFunction3 = _interopRequireDefault(_isFunction2);
 
-var _get2 = require('lodash/get');
-
-var _get3 = _interopRequireDefault(_get2);
-
 var _range2 = require('lodash/range');
 
 var _range3 = _interopRequireDefault(_range2);
 
-var _isNil2 = require('lodash/isNil');
-
-var _isNil3 = _interopRequireDefault(_isNil2);
-
 var _throttle2 = require('lodash/throttle');
 
 var _throttle3 = _interopRequireDefault(_throttle2);
+
+var _isNil2 = require('lodash/isNil');
+
+var _isNil3 = _interopRequireDefault(_isNil2);
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -65863,9 +66029,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -65907,7 +66073,7 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
       _this.state = _extends({}, defaultState, { updateId: 0
       }, _this.updateStateOfAxisMapsOffsetAndStackGroups(_extends({ props: props }, defaultState, { updateId: updateId })));
 
-      _this.uniqueChartId = (0, _DataUtils.uniqueId)('recharts');
+      _this.uniqueChartId = (0, _isNil3.default)(props.id) ? (0, _DataUtils.uniqueId)('recharts') : props.id;
 
       if (props.throttleDelay) {
         _this.triggeredAfterMouseMove = (0, _throttle3.default)(_this.triggeredAfterMouseMove, props.throttleDelay);
@@ -65951,6 +66117,7 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
           this.setState(_extends({}, defaultState, { updateId: updateId + 1
           }, this.updateStateOfAxisMapsOffsetAndStackGroups(_extends({ props: nextProps }, defaultState, { updateId: updateId + 1 }))));
         } else if (!(0, _ReactUtils.isChildrenEqual)(nextProps.children, children)) {
+          // update configuration in chilren
           var hasGlobalData = !(0, _isNil3.default)(nextProps.data);
           var newUpdateId = hasGlobalData ? updateId : updateId + 1;
           var _state = this.state,
@@ -65960,6 +66127,7 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
 
           var _defaultState = _extends({}, this.constructor.createDefaultState(nextProps), { dataEndIndex: dataEndIndex, dataStartIndex: dataStartIndex
           });
+
           this.setState(_extends({}, _defaultState, {
             updateId: newUpdateId
           }, this.updateStateOfAxisMapsOffsetAndStackGroups(_extends({
@@ -66064,6 +66232,7 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
               type = _child$props.type,
               dataKey = _child$props.dataKey,
               allowDataOverflow = _child$props.allowDataOverflow,
+              allowDuplicatedCategory = _child$props.allowDuplicatedCategory,
               scale = _child$props.scale,
               ticks = _child$props.ticks;
 
@@ -66087,15 +66256,28 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
 
               if (type === 'category' && isCategorial) {
                 var duplicate = (0, _DataUtils.hasDuplicate)(domain);
-                duplicateDomain = duplicate ? domain : null;
 
-                // When category axis has duplicated text, serial numbers are used to generate scale
-                domain = duplicate ? (0, _range3.default)(0, len) : domain;
+                if (allowDuplicatedCategory && duplicate) {
+                  duplicateDomain = domain;
+                  // When category axis has duplicated text, serial numbers are used to generate scale
+                  domain = (0, _range3.default)(0, len);
+                } else if (!allowDuplicatedCategory) {
+                  // remove duplicated category
+                  domain = (0, _ChartUtils.parseDomainOfCategoryAxis)(child.props.domain, domain, child).reduce(function (finalDomain, entry) {
+                    return finalDomain.indexOf(entry) >= 0 ? finalDomain : [].concat(_toConsumableArray(finalDomain), [entry]);
+                  }, []);
+                }
               } else if (type === 'category') {
-                // eliminate undefined or null or empty string
-                domain = domain.filter(function (entry) {
-                  return entry !== '' && !(0, _isNil3.default)(entry);
-                });
+                if (!allowDuplicatedCategory) {
+                  domain = (0, _ChartUtils.parseDomainOfCategoryAxis)(child.props.domain, domain, child).reduce(function (finalDomain, entry) {
+                    return finalDomain.indexOf(entry) >= 0 || entry === '' || (0, _isNil3.default)(entry) ? finalDomain : [].concat(_toConsumableArray(finalDomain), [entry]);
+                  }, []);
+                } else {
+                  // eliminate undefined or null or empty string
+                  domain = domain.filter(function (entry) {
+                    return entry !== '' && !(0, _isNil3.default)(entry);
+                  });
+                }
               } else if (type === 'number') {
                 var errorBarsDomain = (0, _ChartUtils.parseErrorBarsOfAxis)(displayedData, graphicalItems.filter(function (item) {
                   return item.props[axisIdKey] === axisId && !item.props.hide;
@@ -66224,9 +66406,9 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
       value: function getActiveCoordinate(tooltipTicks, activeIndex, rangeObj) {
         var layout = this.props.layout;
 
-        var entry = (0, _get3.default)(tooltipTicks.filter(function (tick) {
+        var entry = tooltipTicks.find(function (tick) {
           return tick && tick.index === activeIndex;
-        }), '[0]');
+        });
 
         if (entry) {
           if (layout === 'horizontal') {
@@ -66296,7 +66478,7 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
 
         if (activeIndex >= 0 && tooltipTicks) {
           var activeLabel = tooltipTicks[activeIndex] && tooltipTicks[activeIndex].value;
-          var activePayload = this.getTooltipContent(activeIndex);
+          var activePayload = this.getTooltipContent(activeIndex, activeLabel);
           var activeCoordinate = this.getActiveCoordinate(ticks, activeIndex, rangeObj);
 
           return _extends({}, e, {
@@ -66310,13 +66492,16 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
       /**
        * Get the content to be displayed in the tooltip
        * @param  {Number} activeIndex    Active index of data
+       * @param  {String} activeLabel    Active label of data
        * @return {Array}                 The content of tooltip
        */
 
     }, {
       key: 'getTooltipContent',
-      value: function getTooltipContent(activeIndex) {
-        var graphicalItems = this.state.graphicalItems;
+      value: function getTooltipContent(activeIndex, activeLabel) {
+        var _state4 = this.state,
+            graphicalItems = _state4.graphicalItems,
+            tooltipAxis = _state4.tooltipAxis;
 
         var displayedData = this.constructor.getDisplayedData(this.props, this.state);
 
@@ -66324,8 +66509,10 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
           return null;
         }
 
+        // get data by activeIndex when the axis don't allow duplicated category
         return graphicalItems.reduce(function (result, child) {
           var hide = child.props.hide;
+
 
           if (hide) {
             return result;
@@ -66335,15 +66522,27 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
               dataKey = _child$props2.dataKey,
               name = _child$props2.name,
               unit = _child$props2.unit,
-              formatter = _child$props2.formatter;
+              formatter = _child$props2.formatter,
+              data = _child$props2.data;
 
+          var payload = void 0;
 
+          if (tooltipAxis.dataKey && !tooltipAxis.allowDuplicatedCategory) {
+            // graphic child has data props
+            payload = (0, _DataUtils.findEntryInArray)(data || displayedData, tooltipAxis.dataKey, activeLabel);
+          } else {
+            payload = displayedData[activeIndex];
+          }
+
+          if (!payload) {
+            return result;
+          }
           return [].concat(_toConsumableArray(result), [_extends({}, (0, _ReactUtils.getPresentationAttributes)(child), {
             dataKey: dataKey, unit: unit, formatter: formatter,
             name: name || dataKey,
             color: (0, _ChartUtils.getMainColorOfGraphicItem)(child),
-            value: (0, _ChartUtils.getValueByDataKey)(displayedData[activeIndex], dataKey),
-            payload: displayedData[activeIndex]
+            value: (0, _ChartUtils.getValueByDataKey)(payload, dataKey),
+            payload: payload
           })]);
         }, []);
       }
@@ -66422,10 +66621,10 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
       key: 'getCursorRectangle',
       value: function getCursorRectangle() {
         var layout = this.props.layout;
-        var _state4 = this.state,
-            activeCoordinate = _state4.activeCoordinate,
-            offset = _state4.offset,
-            tooltipAxisBandSize = _state4.tooltipAxisBandSize;
+        var _state5 = this.state,
+            activeCoordinate = _state5.activeCoordinate,
+            offset = _state5.offset,
+            tooltipAxisBandSize = _state5.tooltipAxisBandSize;
 
         var halfSize = tooltipAxisBandSize / 2;
 
@@ -66442,9 +66641,9 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
       key: 'getCursorPoints',
       value: function getCursorPoints() {
         var layout = this.props.layout;
-        var _state5 = this.state,
-            activeCoordinate = _state5.activeCoordinate,
-            offset = _state5.offset;
+        var _state6 = this.state,
+            activeCoordinate = _state6.activeCoordinate,
+            offset = _state6.offset;
 
         var x1 = void 0,
             y1 = void 0,
@@ -66539,9 +66738,9 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
           return isInRange ? { x: x, y: y } : null;
         }
 
-        var _state6 = this.state,
-            angleAxisMap = _state6.angleAxisMap,
-            radiusAxisMap = _state6.radiusAxisMap;
+        var _state7 = this.state,
+            angleAxisMap = _state7.angleAxisMap,
+            radiusAxisMap = _state7.radiusAxisMap;
 
 
         if (angleAxisMap && radiusAxisMap) {
@@ -66837,7 +67036,10 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
           return null;
         }
 
-        return (0, _react.createElement)(_Legend2.default, _extends({}, props, {
+        var item = props.item,
+            otherProps = _objectWithoutProperties(props, ['item']);
+
+        return (0, _react.cloneElement)(item, _extends({}, otherProps, {
           chartWidth: width,
           chartHeight: height,
           margin: margin,
@@ -66863,12 +67065,12 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
           return null;
         }
 
-        var _state7 = this.state,
-            isTooltipActive = _state7.isTooltipActive,
-            activeCoordinate = _state7.activeCoordinate,
-            activePayload = _state7.activePayload,
-            activeLabel = _state7.activeLabel,
-            offset = _state7.offset;
+        var _state8 = this.state,
+            isTooltipActive = _state8.isTooltipActive,
+            activeCoordinate = _state8.activeCoordinate,
+            activePayload = _state8.activePayload,
+            activeLabel = _state8.activeLabel,
+            offset = _state8.offset;
 
 
         return (0, _react.cloneElement)(tooltipItem, {
@@ -67041,7 +67243,8 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
     onMouseMove: _propTypes2.default.func,
     onMouseDown: _propTypes2.default.func,
     onMouseUp: _propTypes2.default.func,
-    reverseStackOrder: _propTypes2.default.bool
+    reverseStackOrder: _propTypes2.default.bool,
+    id: _propTypes2.default.string
   }, propTypes), _class.defaultProps = _extends({
     layout: 'horizontal',
     stackOffset: 'none',
@@ -67108,10 +67311,10 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
 
     this.handleLegendBBoxUpdate = function (box) {
       if (box && _this7.legendInstance) {
-        var _state8 = _this7.state,
-            dataStartIndex = _state8.dataStartIndex,
-            dataEndIndex = _state8.dataEndIndex,
-            updateId = _state8.updateId;
+        var _state9 = _this7.state,
+            dataStartIndex = _state9.dataStartIndex,
+            dataEndIndex = _state9.dataEndIndex,
+            updateId = _state9.updateId;
 
 
         _this7.setState(_this7.updateStateOfAxisMapsOffsetAndStackGroups({
@@ -67141,9 +67344,9 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
           var chartX = data.chartX,
               chartY = data.chartY,
               activeTooltipIndex = data.activeTooltipIndex;
-          var _state9 = _this7.state,
-              offset = _state9.offset,
-              tooltipTicks = _state9.tooltipTicks;
+          var _state10 = _this7.state,
+              offset = _state10.offset,
+              tooltipTicks = _state10.tooltipTicks;
 
           if (!offset) {
             return;
@@ -67176,10 +67379,12 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
         var updateId = _this7.state.updateId;
 
 
-        _this7.setState(_extends({
-          dataStartIndex: startIndex,
-          dataEndIndex: endIndex
-        }, _this7.updateStateOfAxisMapsOffsetAndStackGroups({ props: _this7.props, dataStartIndex: startIndex, dataEndIndex: endIndex, updateId: updateId })));
+        _this7.setState(function () {
+          return _extends({
+            dataStartIndex: startIndex,
+            dataEndIndex: endIndex
+          }, _this7.updateStateOfAxisMapsOffsetAndStackGroups({ props: _this7.props, dataStartIndex: startIndex, dataEndIndex: endIndex, updateId: updateId }));
+        });
 
         _this7.triggerSyncEvent({
           dataStartIndex: startIndex,
@@ -67219,17 +67424,21 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
     };
 
     this.handleItemMouseEnter = function (el) {
-      _this7.setState({
-        isTooltipActive: true,
-        activeItem: el,
-        activePayload: el.tooltipPayload,
-        activeCoordinate: el.tooltipPosition || { x: el.cx, y: el.cy }
+      _this7.setState(function () {
+        return {
+          isTooltipActive: true,
+          activeItem: el,
+          activePayload: el.tooltipPayload,
+          activeCoordinate: el.tooltipPosition || { x: el.cx, y: el.cy }
+        };
       });
     };
 
     this.handleItemMouseLeave = function () {
-      _this7.setState({
-        isTooltipActive: false
+      _this7.setState(function () {
+        return {
+          isTooltipActive: false
+        };
       });
     };
 
@@ -67344,11 +67553,11 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
     };
 
     this.renderCursor = function (element) {
-      var _state10 = _this7.state,
-          isTooltipActive = _state10.isTooltipActive,
-          activeCoordinate = _state10.activeCoordinate,
-          activePayload = _state10.activePayload,
-          offset = _state10.offset;
+      var _state11 = _this7.state,
+          isTooltipActive = _state11.isTooltipActive,
+          activeCoordinate = _state11.activeCoordinate,
+          activePayload = _state11.activePayload,
+          offset = _state11.offset;
 
 
       if (!element || !element.props.cursor || !isTooltipActive || !activeCoordinate) {
@@ -67422,10 +67631,10 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
     };
 
     this.renderGrid = function (element) {
-      var _state11 = _this7.state,
-          xAxisMap = _state11.xAxisMap,
-          yAxisMap = _state11.yAxisMap,
-          offset = _state11.offset;
+      var _state12 = _this7.state,
+          xAxisMap = _state12.xAxisMap,
+          yAxisMap = _state12.yAxisMap,
+          offset = _state12.offset;
       var _props6 = _this7.props,
           width = _props6.width,
           height = _props6.height;
@@ -67451,9 +67660,9 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
     };
 
     this.renderPolarGrid = function (element) {
-      var _state12 = _this7.state,
-          radiusAxisMap = _state12.radiusAxisMap,
-          angleAxisMap = _state12.angleAxisMap;
+      var _state13 = _this7.state,
+          radiusAxisMap = _state13.radiusAxisMap,
+          angleAxisMap = _state13.angleAxisMap;
 
       var radiusAxis = (0, _DataUtils.getAnyElementOfObject)(radiusAxisMap);
       var angleAxis = (0, _DataUtils.getAnyElementOfObject)(angleAxisMap);
@@ -67479,11 +67688,11 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
       var _props7 = _this7.props,
           margin = _props7.margin,
           data = _props7.data;
-      var _state13 = _this7.state,
-          offset = _state13.offset,
-          dataStartIndex = _state13.dataStartIndex,
-          dataEndIndex = _state13.dataEndIndex,
-          updateId = _state13.updateId;
+      var _state14 = _this7.state,
+          offset = _state14.offset,
+          dataStartIndex = _state14.dataStartIndex,
+          dataEndIndex = _state14.dataEndIndex,
+          updateId = _state14.updateId;
 
       // TODO: update brush when children update
 
@@ -67504,10 +67713,10 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
       if (!element) {
         return null;
       }
-      var _state14 = _this7.state,
-          xAxisMap = _state14.xAxisMap,
-          yAxisMap = _state14.yAxisMap,
-          offset = _state14.offset;
+      var _state15 = _this7.state,
+          xAxisMap = _state15.xAxisMap,
+          yAxisMap = _state15.yAxisMap,
+          offset = _state15.offset;
       var _element$props = element.props,
           xAxisId = _element$props.xAxisId,
           yAxisId = _element$props.yAxisId;
@@ -67533,9 +67742,11 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
       }
 
       var graphicalItem = (0, _react.cloneElement)(element, item.props);
-      var _state15 = _this7.state,
-          isTooltipActive = _state15.isTooltipActive,
-          activeTooltipIndex = _state15.activeTooltipIndex;
+      var _state16 = _this7.state,
+          isTooltipActive = _state16.isTooltipActive,
+          tooltipAxis = _state16.tooltipAxis,
+          activeTooltipIndex = _state16.activeTooltipIndex,
+          activeLabel = _state16.activeLabel;
       var children = _this7.props.children;
 
       var tooltipItem = (0, _ReactUtils.findChildByType)(children, _Tooltip2.default);
@@ -67547,16 +67758,26 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
           activeDot = _item$item$props2.activeDot,
           hide = _item$item$props2.hide;
 
-      var hasActive = !hide && isTooltipActive && tooltipItem && activeDot && activeTooltipIndex >= 0 && points[activeTooltipIndex];
+      var hasActive = !hide && isTooltipActive && tooltipItem && activeDot && activeTooltipIndex >= 0;
 
       if (hasActive) {
-        var activePoint = points[activeTooltipIndex];
-        var basePoint = isRange && baseLine && baseLine[activeTooltipIndex];
+        var activePoint = void 0,
+            basePoint = void 0;
 
-        return [graphicalItem].concat(_toConsumableArray(_this7.renderActivePoints({
-          item: item, activePoint: activePoint, basePoint: basePoint, childIndex: activeTooltipIndex,
-          isRange: isRange
-        })));
+        if (tooltipAxis.dataKey && !tooltipAxis.allowDuplicatedCategory) {
+          activePoint = (0, _DataUtils.findEntryInArray)(points, 'payload.' + tooltipAxis.dataKey, activeLabel);
+          basePoint = isRange && baseLine && (0, _DataUtils.findEntryInArray)(baseLine, 'payload.' + tooltipAxis.dataKey, activeLabel);
+        } else {
+          activePoint = points[activeTooltipIndex];
+          basePoint = isRange && baseLine && baseLine[activeTooltipIndex];
+        }
+
+        if (!(0, _isNil3.default)(activePoint)) {
+          return [graphicalItem].concat(_toConsumableArray(_this7.renderActivePoints({
+            item: item, activePoint: activePoint, basePoint: basePoint, childIndex: activeTooltipIndex,
+            isRange: isRange
+          })));
+        }
       }
 
       if (isRange) {
@@ -67572,7 +67793,7 @@ var generateCategoricalChart = function generateCategoricalChart(_ref) {
 };
 
 exports.default = generateCategoricalChart;
-},{"../cartesian/Brush":610,"../cartesian/CartesianAxis":611,"../component/Legend":638,"../component/Tooltip":641,"../container/Layer":642,"../container/Surface":643,"../shape/Cross":652,"../shape/Curve":653,"../shape/Dot":654,"../shape/Rectangle":656,"../shape/Sector":657,"../util/ChartUtils":660,"../util/DOMUtils":661,"../util/DataUtils":662,"../util/Events":663,"../util/PolarUtils":665,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/get":344,"lodash/isFunction":354,"lodash/isNil":357,"lodash/range":375,"lodash/sortBy":376,"lodash/throttle":380,"prop-types":408,"react":590}],633:[function(require,module,exports){
+},{"../cartesian/Brush":610,"../cartesian/CartesianAxis":611,"../component/Legend":638,"../component/Tooltip":641,"../container/Layer":642,"../container/Surface":643,"../shape/Cross":652,"../shape/Curve":653,"../shape/Dot":654,"../shape/Rectangle":656,"../shape/Sector":657,"../util/ChartUtils":660,"../util/DOMUtils":662,"../util/DataUtils":663,"../util/Events":664,"../util/PolarUtils":666,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isFunction":354,"lodash/isNil":357,"lodash/range":375,"lodash/sortBy":376,"lodash/throttle":380,"prop-types":408,"react":590}],633:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -67600,7 +67821,7 @@ Cell.propTypes = _extends({}, _ReactUtils.PRESENTATION_ATTRIBUTES);
 Cell.displayName = 'Cell';
 
 exports.default = Cell;
-},{"../util/ReactUtils":667,"react":590}],634:[function(require,module,exports){
+},{"../util/ReactUtils":668,"react":590}],634:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -67831,7 +68052,7 @@ var DefaultLegendContent = (0, _PureRender2.default)(_class = (_temp = _class2 =
 }, _temp)) || _class;
 
 exports.default = DefaultLegendContent;
-},{"../container/Surface":643,"../shape/Symbols":658,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"prop-types":408,"react":590}],635:[function(require,module,exports){
+},{"../container/Surface":643,"../shape/Symbols":658,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"prop-types":408,"react":590}],635:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -68006,7 +68227,7 @@ var DefaultTooltipContent = (0, _PureRender2.default)(_class = (_temp = _class2 
 }, _temp)) || _class;
 
 exports.default = DefaultTooltipContent;
-},{"../util/DataUtils":662,"../util/PureRender":666,"lodash/isArray":349,"prop-types":408,"react":590}],636:[function(require,module,exports){
+},{"../util/DataUtils":663,"../util/PureRender":667,"lodash/isArray":349,"prop-types":408,"react":590}],636:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -68138,7 +68359,7 @@ var renderRadialLabel = function renderRadialLabel(labelProps, label, attrs) {
   var startPoint = (0, _PolarUtils.polarToCartesian)(cx, cy, radius, labelAngle);
   var endPoint = (0, _PolarUtils.polarToCartesian)(cx, cy, radius, labelAngle + (direction ? 1 : -1) * 359);
   var path = 'M' + startPoint.x + ',' + startPoint.y + '\n    A' + radius + ',' + radius + ',0,1,' + (direction ? 0 : 1) + ',\n    ' + endPoint.x + ',' + endPoint.y;
-  var id = (0, _DataUtils.uniqueId)('recharts-radial-line-');
+  var id = (0, _isNil3.default)(labelProps.id) ? (0, _DataUtils.uniqueId)('recharts-radial-line-') : labelProps.id;
 
   return _react2.default.createElement(
     'text',
@@ -68373,7 +68594,6 @@ function Label(props) {
     if ((0, _react.isValidElement)(label)) {
       return label;
     }
-    console.log(label);
   } else {
     label = getLabel(props);
   }
@@ -68502,7 +68722,7 @@ Label.parseViewBox = parseViewBox;
 Label.renderCallByParent = renderCallByParent;
 
 exports.default = Label;
-},{"../util/DataUtils":662,"../util/PolarUtils":665,"../util/ReactUtils":667,"./Text":640,"classnames":44,"lodash/isFunction":354,"lodash/isNil":357,"lodash/isObject":359,"prop-types":408,"react":590}],637:[function(require,module,exports){
+},{"../util/DataUtils":663,"../util/PolarUtils":666,"../util/ReactUtils":668,"./Text":640,"classnames":44,"lodash/isFunction":354,"lodash/isNil":357,"lodash/isObject":359,"prop-types":408,"react":590}],637:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -68558,6 +68778,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 var propTypes = {
+  id: _propTypes2.default.string,
   data: _propTypes2.default.arrayOf(_propTypes2.default.object),
   valueAccessor: _propTypes2.default.func,
   clockWise: _propTypes2.default.bool,
@@ -68575,7 +68796,8 @@ function LabelList(props) {
       valueAccessor = props.valueAccessor,
       dataKey = props.dataKey,
       clockWise = props.clockWise,
-      others = _objectWithoutProperties(props, ['data', 'valueAccessor', 'dataKey', 'clockWise']);
+      id = props.id,
+      others = _objectWithoutProperties(props, ['data', 'valueAccessor', 'dataKey', 'clockWise', 'id']);
 
   if (!data || !data.length) {
     return null;
@@ -68586,8 +68808,11 @@ function LabelList(props) {
     { className: 'recharts-label-list' },
     data.map(function (entry, index) {
       var value = (0, _isNil3.default)(dataKey) ? valueAccessor(entry, index) : (0, _ChartUtils.getValueByDataKey)(entry && entry.payload, dataKey);
+      var idProps = (0, _isNil3.default)(id) ? {} : {
+        id: id + '-' + index
+      };
 
-      return _react2.default.createElement(_Label2.default, _extends({}, (0, _ReactUtils.getPresentationAttributes)(entry), others, {
+      return _react2.default.createElement(_Label2.default, _extends({}, (0, _ReactUtils.getPresentationAttributes)(entry), others, idProps, {
         index: index,
         value: value,
         viewBox: _Label2.default.parseViewBox((0, _isNil3.default)(clockWise) ? entry : _extends({}, entry, { clockWise: clockWise })),
@@ -68648,7 +68873,7 @@ LabelList.renderCallByParent = renderCallByParent;
 LabelList.defaultProps = defaultProps;
 
 exports.default = LabelList;
-},{"../container/Layer":642,"../util/ChartUtils":660,"../util/ReactUtils":667,"./Label":636,"lodash/isArray":349,"lodash/isFunction":354,"lodash/isNil":357,"lodash/isObject":359,"lodash/last":366,"prop-types":408,"react":590}],638:[function(require,module,exports){
+},{"../container/Layer":642,"../util/ChartUtils":660,"../util/ReactUtils":668,"./Label":636,"lodash/isArray":349,"lodash/isFunction":354,"lodash/isNil":357,"lodash/isObject":359,"lodash/last":366,"prop-types":408,"react":590}],638:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -68908,7 +69133,7 @@ var Legend = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_C
 }, _temp2)) || _class;
 
 exports.default = Legend;
-},{"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"./DefaultLegendContent":634,"lodash/isFunction":354,"prop-types":408,"react":590}],639:[function(require,module,exports){
+},{"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"./DefaultLegendContent":634,"lodash/isFunction":354,"prop-types":408,"react":590}],639:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -69118,7 +69343,7 @@ var ResponsiveContainer = (_temp = _class = function (_Component) {
   debounce: 0
 }, _temp);
 exports.default = ResponsiveContainer;
-},{"../util/DataUtils":662,"../util/LogUtils":664,"classnames":44,"lodash/debounce":341,"prop-types":408,"react":590,"react-resize-detector":550}],640:[function(require,module,exports){
+},{"../util/DataUtils":663,"../util/LogUtils":665,"classnames":44,"lodash/debounce":341,"prop-types":408,"react":590,"react-resize-detector":550}],640:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -69357,7 +69582,7 @@ var Text = (_temp2 = _class = function (_Component) {
   verticalAnchor: 'end' // Maintain compat with existing charts / default SVG behavior
 }, _temp2);
 exports.default = Text;
-},{"../util/DOMUtils":661,"../util/DataUtils":662,"../util/ReactUtils":667,"classnames":44,"lodash/isNil":357,"prop-types":408,"react":590,"reduce-css-calc":708}],641:[function(require,module,exports){
+},{"../util/DOMUtils":662,"../util/DataUtils":663,"../util/ReactUtils":668,"classnames":44,"lodash/isNil":357,"prop-types":408,"react":590,"reduce-css-calc":709}],641:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -69452,7 +69677,8 @@ var propTypes = {
   animationDuration: _propTypes2.default.number,
   animationEasing: _propTypes2.default.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
   itemSorter: _propTypes2.default.func,
-  filterNull: _propTypes2.default.bool
+  filterNull: _propTypes2.default.bool,
+  useTranslate3d: _propTypes2.default.bool
 };
 
 var defaultProps = {
@@ -69472,7 +69698,8 @@ var defaultProps = {
   itemSorter: function itemSorter() {
     return -1;
   },
-  filterNull: true
+  filterNull: true,
+  useTranslate3d: false
 };
 
 var renderContent = function renderContent(content, props) {
@@ -69592,7 +69819,7 @@ var Tooltip = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_
       }
 
       outerStyle = _extends({}, outerStyle, (0, _reactSmooth.translateStyle)({
-        transform: 'translate(' + translateX + 'px, ' + translateY + 'px)'
+        transform: this.props.useTranslate3d ? 'translate3d(' + translateX + 'px, ' + translateY + 'px, 0)' : 'translate(' + translateX + 'px, ' + translateY + 'px)'
       }));
 
       if (isAnimationActive && active) {
@@ -69619,7 +69846,7 @@ var Tooltip = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_
 }(_react.Component), _class2.displayName = 'Tooltip', _class2.propTypes = propTypes, _class2.defaultProps = defaultProps, _temp2)) || _class;
 
 exports.default = Tooltip;
-},{"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"./DefaultTooltipContent":635,"lodash/isFunction":354,"lodash/isNil":357,"prop-types":408,"react":590,"react-smooth":558}],642:[function(require,module,exports){
+},{"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"./DefaultTooltipContent":635,"lodash/isFunction":354,"lodash/isNil":357,"prop-types":408,"react":590,"react-smooth":558}],642:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -69742,7 +69969,7 @@ function Surface(props) {
 Surface.propTypes = propTypes;
 
 exports.default = Surface;
-},{"../util/ReactUtils":667,"classnames":44,"prop-types":408,"react":590}],644:[function(require,module,exports){
+},{"../util/ReactUtils":668,"classnames":44,"prop-types":408,"react":590}],644:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -70587,7 +70814,7 @@ var Pie = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Comp
 }, _temp2)) || _class;
 
 exports.default = Pie;
-},{"../component/Cell":633,"../component/Label":636,"../component/LabelList":637,"../component/Text":640,"../container/Layer":642,"../shape/Curve":653,"../shape/Sector":657,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/LogUtils":664,"../util/PolarUtils":665,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNil":357,"lodash/isPlainObject":361,"prop-types":408,"react":590,"react-smooth":558}],646:[function(require,module,exports){
+},{"../component/Cell":633,"../component/Label":636,"../component/LabelList":637,"../component/Text":640,"../container/Layer":642,"../shape/Curve":653,"../shape/Sector":657,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/LogUtils":665,"../util/PolarUtils":666,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNil":357,"lodash/isPlainObject":361,"prop-types":408,"react":590,"react-smooth":558}],646:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -70851,7 +71078,8 @@ var PolarAngleAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = funct
   })),
   stroke: _propTypes2.default.string,
   orientation: _propTypes2.default.oneOf(['inner', 'outer']),
-  tickFormatter: _propTypes2.default.func
+  tickFormatter: _propTypes2.default.func,
+  allowDuplicatedCategory: _propTypes2.default.bool
 }), _class2.defaultProps = {
   type: 'category',
   angleAxisId: 0,
@@ -70863,11 +71091,12 @@ var PolarAngleAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = funct
   axisLine: true,
   tickLine: true,
   tick: true,
-  hide: false
+  hide: false,
+  allowDuplicatedCategory: true
 }, _temp)) || _class;
 
 exports.default = PolarAngleAxis;
-},{"../component/Text":640,"../container/Layer":642,"../shape/Dot":654,"../shape/Polygon":655,"../util/PolarUtils":665,"../util/PureRender":666,"../util/ReactUtils":667,"lodash/isFunction":354,"prop-types":408,"react":590}],647:[function(require,module,exports){
+},{"../component/Text":640,"../container/Layer":642,"../shape/Dot":654,"../shape/Polygon":655,"../util/PolarUtils":666,"../util/PureRender":667,"../util/ReactUtils":668,"lodash/isFunction":354,"prop-types":408,"react":590}],647:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -71099,7 +71328,7 @@ var PolarGrid = (0, _PureRender2.default)(_class = (_temp = _class2 = function (
 }, _temp)) || _class;
 
 exports.default = PolarGrid;
-},{"../util/PolarUtils":665,"../util/PureRender":666,"../util/ReactUtils":667,"prop-types":408,"react":590}],648:[function(require,module,exports){
+},{"../util/PolarUtils":666,"../util/PureRender":667,"../util/ReactUtils":668,"prop-types":408,"react":590}],648:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -71377,7 +71606,8 @@ var PolarRadiusAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = func
   tickFormatter: _propTypes2.default.func,
   domain: _propTypes2.default.arrayOf(_propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.oneOf(['auto', 'dataMin', 'dataMax'])])),
   scale: _propTypes2.default.oneOfType([_propTypes2.default.oneOf(['auto', 'linear', 'pow', 'sqrt', 'log', 'identity', 'time', 'band', 'point', 'ordinal', 'quantile', 'quantize', 'utcTime', 'sequential', 'threshold']), _propTypes2.default.func]),
-  allowDataOverflow: _propTypes2.default.bool
+  allowDataOverflow: _propTypes2.default.bool,
+  allowDuplicatedCategory: _propTypes2.default.bool
 }), _class2.defaultProps = {
   type: 'number',
   radiusAxisId: 0,
@@ -71391,11 +71621,12 @@ var PolarRadiusAxis = (0, _PureRender2.default)(_class = (_temp = _class2 = func
   tickCount: 5,
   domain: [0, 'auto'],
   allowDataOverflow: false,
-  scale: 'auto'
+  scale: 'auto',
+  allowDuplicatedCategory: true
 }, _temp)) || _class;
 
 exports.default = PolarRadiusAxis;
-},{"../component/Label":636,"../component/Text":640,"../container/Layer":642,"../util/PolarUtils":665,"../util/PureRender":666,"../util/ReactUtils":667,"lodash/isFunction":354,"lodash/maxBy":368,"lodash/minBy":371,"prop-types":408,"react":590}],649:[function(require,module,exports){
+},{"../component/Label":636,"../component/Text":640,"../container/Layer":642,"../util/PolarUtils":666,"../util/PureRender":667,"../util/ReactUtils":668,"lodash/isFunction":354,"lodash/maxBy":368,"lodash/minBy":371,"prop-types":408,"react":590}],649:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -71764,7 +71995,7 @@ var Radar = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function (_Co
 }, _temp2)) || _class;
 
 exports.default = Radar;
-},{"../component/LabelList":637,"../container/Layer":642,"../shape/Dot":654,"../shape/Polygon":655,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PolarUtils":665,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isEqual":353,"lodash/isFunction":354,"prop-types":408,"react":590,"react-smooth":558}],650:[function(require,module,exports){
+},{"../component/LabelList":637,"../container/Layer":642,"../shape/Dot":654,"../shape/Polygon":655,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/PolarUtils":666,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isEqual":353,"lodash/isFunction":354,"prop-types":408,"react":590,"react-smooth":558}],650:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -72225,7 +72456,7 @@ var RadialBar = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function 
 }, _temp2)) || _class;
 
 exports.default = RadialBar;
-},{"../component/Cell":633,"../component/LabelList":637,"../container/Layer":642,"../shape/Sector":657,"../util/ChartUtils":660,"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"lodash/isArray":349,"lodash/isEqual":353,"lodash/isFunction":354,"prop-types":408,"react":590,"react-smooth":558}],651:[function(require,module,exports){
+},{"../component/Cell":633,"../component/LabelList":637,"../container/Layer":642,"../shape/Sector":657,"../util/ChartUtils":660,"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"lodash/isArray":349,"lodash/isEqual":353,"lodash/isFunction":354,"prop-types":408,"react":590,"react-smooth":558}],651:[function(require,module,exports){
 'use strict';
 
 require('core-js/es6/math');
@@ -72244,7 +72475,7 @@ if (!(Object.setPrototypeOf || testObject.__proto__)) {
     return nativeGetPrototypeOf.call(Object, object);
   };
 }
-},{"core-js/es6/math":668}],652:[function(require,module,exports){
+},{"core-js/es6/math":669}],652:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -72345,7 +72576,7 @@ var Cross = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
 }, _temp)) || _class;
 
 exports.default = Cross;
-},{"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"prop-types":408,"react":590}],653:[function(require,module,exports){
+},{"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"prop-types":408,"react":590}],653:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -72527,7 +72758,7 @@ var Curve = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Com
 }, _temp)) || _class;
 
 exports.default = Curve;
-},{"../util/DataUtils":662,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"d3-shape":148,"lodash/isArray":349,"lodash/isFunction":354,"prop-types":408,"react":590}],654:[function(require,module,exports){
+},{"../util/DataUtils":663,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"d3-shape":148,"lodash/isArray":349,"lodash/isFunction":354,"prop-types":408,"react":590}],654:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -72611,7 +72842,7 @@ var Dot = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Compo
 }, _temp)) || _class;
 
 exports.default = Dot;
-},{"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"prop-types":408,"react":590}],655:[function(require,module,exports){
+},{"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"prop-types":408,"react":590}],655:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -72703,7 +72934,7 @@ var Polygon = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_C
 }), _temp)) || _class;
 
 exports.default = Polygon;
-},{"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"prop-types":408,"react":590}],656:[function(require,module,exports){
+},{"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"prop-types":408,"react":590}],656:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -72820,12 +73051,16 @@ var Rectangle = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function 
     /* eslint-disable  react/no-did-mount-set-state */
     value: function componentDidMount() {
       if (this.node && this.node.getTotalLength) {
-        var totalLength = this.node.getTotalLength();
+        try {
+          var totalLength = this.node.getTotalLength();
 
-        if (totalLength) {
-          this.setState({
-            totalLength: totalLength
-          });
+          if (totalLength) {
+            this.setState({
+              totalLength: totalLength
+            });
+          }
+        } catch (err) {
+          // calculate total length error
         }
       }
     }
@@ -72933,7 +73168,7 @@ var Rectangle = (0, _PureRender2.default)(_class = (_temp2 = _class2 = function 
 }, _temp2)) || _class;
 
 exports.default = Rectangle;
-},{"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"prop-types":408,"react":590,"react-smooth":558}],657:[function(require,module,exports){
+},{"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"prop-types":408,"react":590,"react-smooth":558}],657:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -73169,7 +73404,7 @@ var Sector = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_Co
 }, _temp)) || _class;
 
 exports.default = Sector;
-},{"../util/DataUtils":662,"../util/PolarUtils":665,"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"prop-types":408,"react":590}],658:[function(require,module,exports){
+},{"../util/DataUtils":663,"../util/PolarUtils":666,"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"prop-types":408,"react":590}],658:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -73317,7 +73552,7 @@ var Symbols = (0, _PureRender2.default)(_class = (_temp = _class2 = function (_C
 }, _temp)) || _class;
 
 exports.default = Symbols;
-},{"../util/PureRender":666,"../util/ReactUtils":667,"classnames":44,"d3-shape":148,"prop-types":408,"react":590}],659:[function(require,module,exports){
+},{"../util/PureRender":667,"../util/ReactUtils":668,"classnames":44,"d3-shape":148,"prop-types":408,"react":590}],659:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -73408,6 +73643,9 @@ var formatAxisMap = exports.formatAxisMap = function formatAxisMap(props, axisMa
       width: axisType === 'xAxis' ? offset.width : axis.width,
       height: axisType === 'yAxis' ? offset.height : axis.height
     });
+
+    finalAxis.bandSize = (0, _ChartUtils.getBandSizeOfAxis)(finalAxis, ticks);
+
     if (!axis.hide && axisType === 'xAxis') {
       steps[offsetKey] += (needSpace ? -1 : 1) * finalAxis.height;
     } else if (!axis.hide) {
@@ -73423,7 +73661,11 @@ var formatAxisMap = exports.formatAxisMap = function formatAxisMap(props, axisMa
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getBandSizeOfAxis = exports.validateCoordinateInRange = exports.parseSpecifiedDomain = exports.MAX_VALUE_REG = exports.MIN_VALUE_REG = exports.getDomainOfStackGroups = exports.getStackedDataOfItem = exports.detectReferenceElementsDomain = exports.getBaseValueOfBar = exports.getCateCoordinateOfBar = exports.getCateCoordinateOfLine = exports.getTicksOfScale = exports.calculateDomainOfTicks = exports.getStackGroupsByAxisId = exports.getStackedData = exports.offsetSign = exports.truncateByDomain = exports.findPositionOfBar = exports.checkDomainOfScale = exports.parseScale = exports.combineEventHandlers = exports.getTicksOfAxis = exports.getCoordinatesOfGrid = exports.isCategorialAxis = exports.getDomainOfItemsWithSameAxis = exports.parseErrorBarsOfAxis = exports.getDomainOfErrorBars = exports.appendOffsetOfLegend = exports.getBarPosition = exports.getBarSizeList = exports.getLegendProps = exports.getMainColorOfGraphicItem = exports.calculateActiveTickIndex = exports.getDomainOfDataByKey = exports.getValueByDataKey = undefined;
+exports.parseDomainOfCategoryAxis = exports.getBandSizeOfAxis = exports.validateCoordinateInRange = exports.parseSpecifiedDomain = exports.MAX_VALUE_REG = exports.MIN_VALUE_REG = exports.getDomainOfStackGroups = exports.getStackedDataOfItem = exports.detectReferenceElementsDomain = exports.getBaseValueOfBar = exports.getCateCoordinateOfBar = exports.getCateCoordinateOfLine = exports.getTicksOfScale = exports.calculateDomainOfTicks = exports.getStackGroupsByAxisId = exports.getStackedData = exports.offsetSign = exports.truncateByDomain = exports.findPositionOfBar = exports.checkDomainOfScale = exports.parseScale = exports.combineEventHandlers = exports.getTicksOfAxis = exports.getCoordinatesOfGrid = exports.isCategorialAxis = exports.getDomainOfItemsWithSameAxis = exports.parseErrorBarsOfAxis = exports.getDomainOfErrorBars = exports.appendOffsetOfLegend = exports.getBarPosition = exports.getBarSizeList = exports.getLegendProps = exports.getMainColorOfGraphicItem = exports.calculateActiveTickIndex = exports.getDomainOfDataByKey = exports.getValueByDataKey = undefined;
+
+var _isEqual2 = require('lodash/isEqual');
+
+var _isEqual3 = _interopRequireDefault(_isEqual2);
 
 var _sortBy2 = require('lodash/sortBy');
 
@@ -73689,7 +73931,8 @@ var getLegendProps = exports.getLegendProps = function getLegendProps(_ref) {
   }
 
   return _extends({}, legendItem.props, _Legend2.default.getWithHeight(legendItem, legendWidth), {
-    payload: legendData
+    payload: legendData,
+    item: legendItem
   });
 };
 /**
@@ -74071,7 +74314,6 @@ var combineEventHandlers = exports.combineEventHandlers = function combineEventH
       if ((0, _isFunction3.default)(defaultHandler)) {
         defaultHandler(arg1, arg2, arg3, arg4);
       }
-
       if ((0, _isFunction3.default)(customizedHandler)) {
         customizedHandler(arg1, arg2, arg3, arg4);
       }
@@ -74344,6 +74586,15 @@ var getCateCoordinateOfLine = exports.getCateCoordinateOfLine = function getCate
       index = _ref6.index;
 
   if (axis.type === 'category') {
+    // find coordinate of category axis by the value of category
+    if (!axis.allowDuplicatedCategory && axis.dataKey && !(0, _isNil3.default)(entry[axis.dataKey])) {
+      var matchedTick = (0, _DataUtils.findEntryInArray)(ticks, 'value', entry[axis.dataKey]);
+
+      if (matchedTick) {
+        return matchedTick.coordinate + bandSize / 2;
+      }
+    }
+
     return ticks[index] ? ticks[index].coordinate + bandSize / 2 : null;
   }
 
@@ -74563,7 +74814,54 @@ var getBandSizeOfAxis = exports.getBandSizeOfAxis = function getBandSizeOfAxis(a
 
   return 0;
 };
-},{"../cartesian/ErrorBar":613,"../cartesian/ReferenceArea":615,"../cartesian/ReferenceDot":616,"../cartesian/ReferenceLine":617,"../component/Legend":638,"./DataUtils":662,"./ReactUtils":667,"d3-scale":147,"d3-shape":148,"lodash/get":344,"lodash/isArray":349,"lodash/isFunction":354,"lodash/isNaN":356,"lodash/isNil":357,"lodash/isString":362,"lodash/max":367,"lodash/min":370,"lodash/sortBy":376,"recharts-scale":605}],661:[function(require,module,exports){
+/**
+ * parse the domain of a category axis when a domain is specified
+ * @param   {Array}        specifiedDomain  The domain specified by users
+ * @param   {Array}        calculatedDomain The domain calculated by dateKey
+ * @param   {ReactElement} axisChild        The axis element
+ * @returns {Array}        domains
+ */
+var parseDomainOfCategoryAxis = exports.parseDomainOfCategoryAxis = function parseDomainOfCategoryAxis(specifiedDomain, calculatedDomain, axisChild) {
+  if (!specifiedDomain || !specifiedDomain.length) {
+    return calculatedDomain;
+  }
+
+  if ((0, _isEqual3.default)(specifiedDomain, (0, _get3.default)(axisChild, 'type.defaultProps.domain'))) {
+    return calculatedDomain;
+  }
+
+  return specifiedDomain;
+};
+},{"../cartesian/ErrorBar":613,"../cartesian/ReferenceArea":615,"../cartesian/ReferenceDot":616,"../cartesian/ReferenceLine":617,"../component/Legend":638,"./DataUtils":663,"./ReactUtils":668,"d3-scale":147,"d3-shape":148,"lodash/get":344,"lodash/isArray":349,"lodash/isEqual":353,"lodash/isFunction":354,"lodash/isNaN":356,"lodash/isNil":357,"lodash/isString":362,"lodash/max":367,"lodash/min":370,"lodash/sortBy":376,"recharts-scale":605}],661:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var PREFIX_LIST = ['Webkit', 'Moz', 'O', 'ms'];
+
+var generatePrefixStyle = exports.generatePrefixStyle = function generatePrefixStyle(name, value) {
+  if (!name) {
+    return null;
+  }
+
+  var camelName = name.replace(/(\w)/, function (v) {
+    return v.toUpperCase();
+  });
+  var result = PREFIX_LIST.reduce(function (res, entry) {
+    return _extends({}, res, _defineProperty({}, entry + camelName, value));
+  }, {});
+
+  result[name] = value;
+
+  return result;
+};
+},{}],662:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -74692,13 +74990,17 @@ var calculateChartCoordinate = exports.calculateChartCoordinate = function calcu
     chartY: Math.round(event.pageY - offset.top)
   };
 };
-},{"./ReactUtils":667}],662:[function(require,module,exports){
+},{"./ReactUtils":668}],663:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.interpolateNumber = exports.hasDuplicate = exports.getAnyElementOfObject = exports.getPercentValue = exports.uniqueId = exports.isNumOrStr = exports.isNumber = exports.isPercent = exports.mathSign = undefined;
+exports.findEntryInArray = exports.interpolateNumber = exports.hasDuplicate = exports.getAnyElementOfObject = exports.getPercentValue = exports.uniqueId = exports.isNumOrStr = exports.isNumber = exports.isPercent = exports.mathSign = undefined;
+
+var _get2 = require('lodash/get');
+
+var _get3 = _interopRequireDefault(_get2);
 
 var _isArray2 = require('lodash/isArray');
 
@@ -74827,7 +75129,17 @@ var interpolateNumber = exports.interpolateNumber = function interpolateNumber(n
     return numberB;
   };
 };
-},{"lodash/isArray":349,"lodash/isNaN":356,"lodash/isNumber":358,"lodash/isString":362}],663:[function(require,module,exports){
+
+var findEntryInArray = exports.findEntryInArray = function findEntryInArray(ary, specifiedKey, specifiedValue) {
+  if (!ary || !ary.length) {
+    return null;
+  }
+
+  return ary.find(function (entry) {
+    return entry && (0, _get3.default)(entry, specifiedKey) === specifiedValue;
+  });
+};
+},{"lodash/get":344,"lodash/isArray":349,"lodash/isNaN":356,"lodash/isNumber":358,"lodash/isString":362}],664:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -74849,7 +75161,7 @@ if (eventCenter.setMaxListeners) {
 
 exports.eventCenter = eventCenter;
 var SYNC_EVENT = exports.SYNC_EVENT = 'recharts.syncMouseEvents';
-},{"events":169}],664:[function(require,module,exports){
+},{"events":169}],665:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -74880,7 +75192,7 @@ var warn = exports.warn = function warn(condition, format, a, b, c, d, e, f) {
   }
 };
 }).call(this,require('_process'))
-},{"_process":403}],665:[function(require,module,exports){
+},{"_process":403}],666:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -75097,7 +75409,7 @@ var inRangeOfSector = exports.inRangeOfSector = function inRangeOfSector(_ref5, 
 
   return null;
 };
-},{"./ChartUtils":660,"./DataUtils":662,"lodash/isNil":357}],666:[function(require,module,exports){
+},{"./ChartUtils":660,"./DataUtils":663,"lodash/isNil":357}],667:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -75128,7 +75440,7 @@ function pureRenderDecorator(component) {
   // eslint-disable-next-line no-param-reassign
   component.prototype.shouldComponentUpdate = shouldComponentUpdate;
 }
-},{}],667:[function(require,module,exports){
+},{}],668:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -75171,6 +75483,8 @@ var _PureRender = require('./PureRender');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 var PRESENTATION_ATTRIBUTES = exports.PRESENTATION_ATTRIBUTES = {
   alignmentBaseline: _propTypes2.default.string,
@@ -75493,12 +75807,26 @@ var filterSvgElements = exports.filterSvgElements = function filterSvgElements(c
 
   return svgElements;
 };
-
-var isSingleChildEqual = exports.isSingleChildEqual = function isSingleChildEqual(nextChild, prevChild) {
+var isSingleChildEqual = function isSingleChildEqual(nextChild, prevChild) {
   if ((0, _isNil3.default)(nextChild) && (0, _isNil3.default)(prevChild)) {
     return true;
   } else if (!(0, _isNil3.default)(nextChild) && !(0, _isNil3.default)(prevChild)) {
-    return (0, _PureRender.shallowEqual)(nextChild.props, prevChild.props);
+    var _ref = nextChild.props || {},
+        nextChildren = _ref.children,
+        nextProps = _objectWithoutProperties(_ref, ['children']);
+
+    var _ref2 = prevChild.props || {},
+        prevChildren = _ref2.children,
+        prevProps = _objectWithoutProperties(_ref2, ['children']);
+
+    if (nextChildren && prevChildren) {
+      // eslint-disable-next-line no-use-before-define
+      return (0, _PureRender.shallowEqual)(nextProps, prevProps) && isChildrenEqual(nextChildren, prevChildren);
+    } else if (!nextChildren && !prevChildren) {
+      return (0, _PureRender.shallowEqual)(nextProps, prevProps);
+    }
+
+    return false;
   }
 
   return false;
@@ -75509,6 +75837,7 @@ var isSingleChildEqual = exports.isSingleChildEqual = function isSingleChildEqua
  * @param  {Object} prevChildren The prev children
  * @return {Boolean}             equal or not
  */
+exports.isSingleChildEqual = isSingleChildEqual;
 var isChildrenEqual = exports.isChildrenEqual = function isChildrenEqual(nextChildren, prevChildren) {
   if (nextChildren === prevChildren) {
     return true;
@@ -75593,7 +75922,7 @@ var parseChildIndex = exports.parseChildIndex = function parseChildIndex(child, 
 
   return result;
 };
-},{"./DataUtils":662,"./PureRender":666,"lodash/isArray":349,"lodash/isFunction":354,"lodash/isNil":357,"lodash/isObject":359,"lodash/isString":362,"prop-types":408,"react":590}],668:[function(require,module,exports){
+},{"./DataUtils":663,"./PureRender":667,"lodash/isArray":349,"lodash/isFunction":354,"lodash/isNil":357,"lodash/isObject":359,"lodash/isString":362,"prop-types":408,"react":590}],669:[function(require,module,exports){
 require('../modules/es6.math.acosh');
 require('../modules/es6.math.asinh');
 require('../modules/es6.math.atanh');
@@ -75613,21 +75942,21 @@ require('../modules/es6.math.tanh');
 require('../modules/es6.math.trunc');
 module.exports = require('../modules/_core').Math;
 
-},{"../modules/_core":671,"../modules/es6.math.acosh":691,"../modules/es6.math.asinh":692,"../modules/es6.math.atanh":693,"../modules/es6.math.cbrt":694,"../modules/es6.math.clz32":695,"../modules/es6.math.cosh":696,"../modules/es6.math.expm1":697,"../modules/es6.math.fround":698,"../modules/es6.math.hypot":699,"../modules/es6.math.imul":700,"../modules/es6.math.log10":701,"../modules/es6.math.log1p":702,"../modules/es6.math.log2":703,"../modules/es6.math.sign":704,"../modules/es6.math.sinh":705,"../modules/es6.math.tanh":706,"../modules/es6.math.trunc":707}],669:[function(require,module,exports){
+},{"../modules/_core":672,"../modules/es6.math.acosh":692,"../modules/es6.math.asinh":693,"../modules/es6.math.atanh":694,"../modules/es6.math.cbrt":695,"../modules/es6.math.clz32":696,"../modules/es6.math.cosh":697,"../modules/es6.math.expm1":698,"../modules/es6.math.fround":699,"../modules/es6.math.hypot":700,"../modules/es6.math.imul":701,"../modules/es6.math.log10":702,"../modules/es6.math.log1p":703,"../modules/es6.math.log2":704,"../modules/es6.math.sign":705,"../modules/es6.math.sinh":706,"../modules/es6.math.tanh":707,"../modules/es6.math.trunc":708}],670:[function(require,module,exports){
 arguments[4][52][0].apply(exports,arguments)
-},{"dup":52}],670:[function(require,module,exports){
+},{"dup":52}],671:[function(require,module,exports){
 arguments[4][55][0].apply(exports,arguments)
-},{"./_is-object":681,"dup":55}],671:[function(require,module,exports){
+},{"./_is-object":682,"dup":55}],672:[function(require,module,exports){
 var core = module.exports = { version: '2.5.1' };
 if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 
-},{}],672:[function(require,module,exports){
+},{}],673:[function(require,module,exports){
 arguments[4][60][0].apply(exports,arguments)
-},{"./_a-function":669,"dup":60}],673:[function(require,module,exports){
+},{"./_a-function":670,"dup":60}],674:[function(require,module,exports){
 arguments[4][62][0].apply(exports,arguments)
-},{"./_fails":676,"dup":62}],674:[function(require,module,exports){
+},{"./_fails":677,"dup":62}],675:[function(require,module,exports){
 arguments[4][63][0].apply(exports,arguments)
-},{"./_global":677,"./_is-object":681,"dup":63}],675:[function(require,module,exports){
+},{"./_global":678,"./_is-object":682,"dup":63}],676:[function(require,module,exports){
 var global = require('./_global');
 var core = require('./_core');
 var hide = require('./_hide');
@@ -75672,19 +76001,19 @@ $export.U = 64;  // safe
 $export.R = 128; // real proto method for `library`
 module.exports = $export;
 
-},{"./_core":671,"./_ctx":672,"./_global":677,"./_hide":679,"./_redefine":688}],676:[function(require,module,exports){
+},{"./_core":672,"./_ctx":673,"./_global":678,"./_hide":680,"./_redefine":689}],677:[function(require,module,exports){
 arguments[4][67][0].apply(exports,arguments)
-},{"dup":67}],677:[function(require,module,exports){
+},{"dup":67}],678:[function(require,module,exports){
 arguments[4][69][0].apply(exports,arguments)
-},{"dup":69}],678:[function(require,module,exports){
+},{"dup":69}],679:[function(require,module,exports){
 arguments[4][70][0].apply(exports,arguments)
-},{"dup":70}],679:[function(require,module,exports){
+},{"dup":70}],680:[function(require,module,exports){
 arguments[4][71][0].apply(exports,arguments)
-},{"./_descriptors":673,"./_object-dp":686,"./_property-desc":687,"dup":71}],680:[function(require,module,exports){
+},{"./_descriptors":674,"./_object-dp":687,"./_property-desc":688,"dup":71}],681:[function(require,module,exports){
 arguments[4][73][0].apply(exports,arguments)
-},{"./_descriptors":673,"./_dom-create":674,"./_fails":676,"dup":73}],681:[function(require,module,exports){
+},{"./_descriptors":674,"./_dom-create":675,"./_fails":677,"dup":73}],682:[function(require,module,exports){
 arguments[4][78][0].apply(exports,arguments)
-},{"dup":78}],682:[function(require,module,exports){
+},{"dup":78}],683:[function(require,module,exports){
 // 20.2.2.14 Math.expm1(x)
 var $expm1 = Math.expm1;
 module.exports = (!$expm1
@@ -75696,7 +76025,7 @@ module.exports = (!$expm1
   return (x = +x) == 0 ? x : x > -1e-6 && x < 1e-6 ? x + x * x / 2 : Math.exp(x) - 1;
 } : $expm1;
 
-},{}],683:[function(require,module,exports){
+},{}],684:[function(require,module,exports){
 // 20.2.2.16 Math.fround(x)
 var sign = require('./_math-sign');
 var pow = Math.pow;
@@ -75721,24 +76050,24 @@ module.exports = Math.fround || function fround(x) {
   return $sign * result;
 };
 
-},{"./_math-sign":685}],684:[function(require,module,exports){
+},{"./_math-sign":686}],685:[function(require,module,exports){
 // 20.2.2.20 Math.log1p(x)
 module.exports = Math.log1p || function log1p(x) {
   return (x = +x) > -1e-8 && x < 1e-8 ? x - x * x / 2 : Math.log(1 + x);
 };
 
-},{}],685:[function(require,module,exports){
+},{}],686:[function(require,module,exports){
 // 20.2.2.28 Math.sign(x)
 module.exports = Math.sign || function sign(x) {
   // eslint-disable-next-line no-self-compare
   return (x = +x) == 0 || x != x ? x : x < 0 ? -1 : 1;
 };
 
-},{}],686:[function(require,module,exports){
+},{}],687:[function(require,module,exports){
 arguments[4][90][0].apply(exports,arguments)
-},{"./_an-object":670,"./_descriptors":673,"./_ie8-dom-define":680,"./_to-primitive":689,"dup":90}],687:[function(require,module,exports){
+},{"./_an-object":671,"./_descriptors":674,"./_ie8-dom-define":681,"./_to-primitive":690,"dup":90}],688:[function(require,module,exports){
 arguments[4][103][0].apply(exports,arguments)
-},{"dup":103}],688:[function(require,module,exports){
+},{"dup":103}],689:[function(require,module,exports){
 var global = require('./_global');
 var hide = require('./_hide');
 var has = require('./_has');
@@ -75771,11 +76100,11 @@ require('./_core').inspectSource = function (it) {
   return typeof this == 'function' && this[SRC] || $toString.call(this);
 });
 
-},{"./_core":671,"./_global":677,"./_has":678,"./_hide":679,"./_uid":690}],689:[function(require,module,exports){
+},{"./_core":672,"./_global":678,"./_has":679,"./_hide":680,"./_uid":691}],690:[function(require,module,exports){
 arguments[4][119][0].apply(exports,arguments)
-},{"./_is-object":681,"dup":119}],690:[function(require,module,exports){
+},{"./_is-object":682,"dup":119}],691:[function(require,module,exports){
 arguments[4][120][0].apply(exports,arguments)
-},{"dup":120}],691:[function(require,module,exports){
+},{"dup":120}],692:[function(require,module,exports){
 // 20.2.2.3 Math.acosh(x)
 var $export = require('./_export');
 var log1p = require('./_math-log1p');
@@ -75795,7 +76124,7 @@ $export($export.S + $export.F * !($acosh
   }
 });
 
-},{"./_export":675,"./_math-log1p":684}],692:[function(require,module,exports){
+},{"./_export":676,"./_math-log1p":685}],693:[function(require,module,exports){
 // 20.2.2.5 Math.asinh(x)
 var $export = require('./_export');
 var $asinh = Math.asinh;
@@ -75807,7 +76136,7 @@ function asinh(x) {
 // Tor Browser bug: Math.asinh(0) -> -0
 $export($export.S + $export.F * !($asinh && 1 / $asinh(0) > 0), 'Math', { asinh: asinh });
 
-},{"./_export":675}],693:[function(require,module,exports){
+},{"./_export":676}],694:[function(require,module,exports){
 // 20.2.2.7 Math.atanh(x)
 var $export = require('./_export');
 var $atanh = Math.atanh;
@@ -75819,7 +76148,7 @@ $export($export.S + $export.F * !($atanh && 1 / $atanh(-0) < 0), 'Math', {
   }
 });
 
-},{"./_export":675}],694:[function(require,module,exports){
+},{"./_export":676}],695:[function(require,module,exports){
 // 20.2.2.9 Math.cbrt(x)
 var $export = require('./_export');
 var sign = require('./_math-sign');
@@ -75830,7 +76159,7 @@ $export($export.S, 'Math', {
   }
 });
 
-},{"./_export":675,"./_math-sign":685}],695:[function(require,module,exports){
+},{"./_export":676,"./_math-sign":686}],696:[function(require,module,exports){
 // 20.2.2.11 Math.clz32(x)
 var $export = require('./_export');
 
@@ -75840,7 +76169,7 @@ $export($export.S, 'Math', {
   }
 });
 
-},{"./_export":675}],696:[function(require,module,exports){
+},{"./_export":676}],697:[function(require,module,exports){
 // 20.2.2.12 Math.cosh(x)
 var $export = require('./_export');
 var exp = Math.exp;
@@ -75851,20 +76180,20 @@ $export($export.S, 'Math', {
   }
 });
 
-},{"./_export":675}],697:[function(require,module,exports){
+},{"./_export":676}],698:[function(require,module,exports){
 // 20.2.2.14 Math.expm1(x)
 var $export = require('./_export');
 var $expm1 = require('./_math-expm1');
 
 $export($export.S + $export.F * ($expm1 != Math.expm1), 'Math', { expm1: $expm1 });
 
-},{"./_export":675,"./_math-expm1":682}],698:[function(require,module,exports){
+},{"./_export":676,"./_math-expm1":683}],699:[function(require,module,exports){
 // 20.2.2.16 Math.fround(x)
 var $export = require('./_export');
 
 $export($export.S, 'Math', { fround: require('./_math-fround') });
 
-},{"./_export":675,"./_math-fround":683}],699:[function(require,module,exports){
+},{"./_export":676,"./_math-fround":684}],700:[function(require,module,exports){
 // 20.2.2.17 Math.hypot([value1[, value2[, … ]]])
 var $export = require('./_export');
 var abs = Math.abs;
@@ -75891,7 +76220,7 @@ $export($export.S, 'Math', {
   }
 });
 
-},{"./_export":675}],700:[function(require,module,exports){
+},{"./_export":676}],701:[function(require,module,exports){
 // 20.2.2.18 Math.imul(x, y)
 var $export = require('./_export');
 var $imul = Math.imul;
@@ -75910,7 +76239,7 @@ $export($export.S + $export.F * require('./_fails')(function () {
   }
 });
 
-},{"./_export":675,"./_fails":676}],701:[function(require,module,exports){
+},{"./_export":676,"./_fails":677}],702:[function(require,module,exports){
 // 20.2.2.21 Math.log10(x)
 var $export = require('./_export');
 
@@ -75920,13 +76249,13 @@ $export($export.S, 'Math', {
   }
 });
 
-},{"./_export":675}],702:[function(require,module,exports){
+},{"./_export":676}],703:[function(require,module,exports){
 // 20.2.2.20 Math.log1p(x)
 var $export = require('./_export');
 
 $export($export.S, 'Math', { log1p: require('./_math-log1p') });
 
-},{"./_export":675,"./_math-log1p":684}],703:[function(require,module,exports){
+},{"./_export":676,"./_math-log1p":685}],704:[function(require,module,exports){
 // 20.2.2.22 Math.log2(x)
 var $export = require('./_export');
 
@@ -75936,13 +76265,13 @@ $export($export.S, 'Math', {
   }
 });
 
-},{"./_export":675}],704:[function(require,module,exports){
+},{"./_export":676}],705:[function(require,module,exports){
 // 20.2.2.28 Math.sign(x)
 var $export = require('./_export');
 
 $export($export.S, 'Math', { sign: require('./_math-sign') });
 
-},{"./_export":675,"./_math-sign":685}],705:[function(require,module,exports){
+},{"./_export":676,"./_math-sign":686}],706:[function(require,module,exports){
 // 20.2.2.30 Math.sinh(x)
 var $export = require('./_export');
 var expm1 = require('./_math-expm1');
@@ -75959,7 +76288,7 @@ $export($export.S + $export.F * require('./_fails')(function () {
   }
 });
 
-},{"./_export":675,"./_fails":676,"./_math-expm1":682}],706:[function(require,module,exports){
+},{"./_export":676,"./_fails":677,"./_math-expm1":683}],707:[function(require,module,exports){
 // 20.2.2.33 Math.tanh(x)
 var $export = require('./_export');
 var expm1 = require('./_math-expm1');
@@ -75973,7 +76302,7 @@ $export($export.S, 'Math', {
   }
 });
 
-},{"./_export":675,"./_math-expm1":682}],707:[function(require,module,exports){
+},{"./_export":676,"./_math-expm1":683}],708:[function(require,module,exports){
 // 20.2.2.34 Math.trunc(x)
 var $export = require('./_export');
 
@@ -75983,7 +76312,7 @@ $export($export.S, 'Math', {
   }
 });
 
-},{"./_export":675}],708:[function(require,module,exports){
+},{"./_export":676}],709:[function(require,module,exports){
 /**
  * Module dependencies
  */
@@ -76149,7 +76478,7 @@ function getUnitsInExpression(expression) {
   return uniqueUnits
 }
 
-},{"balanced-match":709,"math-expression-evaluator":384,"reduce-function-call":710}],709:[function(require,module,exports){
+},{"balanced-match":710,"math-expression-evaluator":384,"reduce-function-call":711}],710:[function(require,module,exports){
 module.exports = balanced;
 function balanced(a, b, str) {
   if (a instanceof RegExp) a = maybeMatch(a, str);
@@ -76209,7 +76538,7 @@ function range(a, b, str) {
   return result;
 }
 
-},{}],710:[function(require,module,exports){
+},{}],711:[function(require,module,exports){
 /*
  * Module dependencies
  */
@@ -76285,9 +76614,9 @@ function evalFunctionCall (string, functionIdentifier, callback, call, functionR
   return callback(reduceFunctionCall(string, functionRE, callback), functionIdentifier, call)
 }
 
-},{"balanced-match":711}],711:[function(require,module,exports){
-arguments[4][709][0].apply(exports,arguments)
-},{"dup":709}],712:[function(require,module,exports){
+},{"balanced-match":712}],712:[function(require,module,exports){
+arguments[4][710][0].apply(exports,arguments)
+},{"dup":710}],713:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -76429,7 +76758,7 @@ function printBuffer(buffer, options) {
     }
   });
 }
-},{"./diff":714,"./helpers":715}],713:[function(require,module,exports){
+},{"./diff":715,"./helpers":716}],714:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76476,7 +76805,7 @@ exports.default = {
   transformer: undefined
 };
 module.exports = exports["default"];
-},{}],714:[function(require,module,exports){
+},{}],715:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -76571,7 +76900,7 @@ function diffLogger(prevState, newState, logger, isCollapsed) {
   }
 }
 module.exports = exports['default'];
-},{"deep-diff":151}],715:[function(require,module,exports){
+},{"deep-diff":151}],716:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76591,7 +76920,7 @@ var formatTime = exports.formatTime = function formatTime(time) {
 
 // Use performance API if it's available in order to get better precision
 var timer = exports.timer = typeof performance !== "undefined" && performance !== null && typeof performance.now === "function" ? performance : Date;
-},{}],716:[function(require,module,exports){
+},{}],717:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -76725,7 +77054,7 @@ exports.logger = defaultLogger;
 exports.default = createLogger;
 module.exports = exports['default'];
 
-},{"./core":712,"./defaults":713,"./helpers":715}],717:[function(require,module,exports){
+},{"./core":713,"./defaults":714,"./helpers":716}],718:[function(require,module,exports){
 'use strict';
 
 function thunkMiddleware(_ref) {
@@ -76740,7 +77069,7 @@ function thunkMiddleware(_ref) {
 }
 
 module.exports = thunkMiddleware;
-},{}],718:[function(require,module,exports){
+},{}],719:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -76799,7 +77128,7 @@ function applyMiddleware() {
     };
   };
 }
-},{"./compose":721}],719:[function(require,module,exports){
+},{"./compose":722}],720:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -76851,7 +77180,7 @@ function bindActionCreators(actionCreators, dispatch) {
   }
   return boundActionCreators;
 }
-},{}],720:[function(require,module,exports){
+},{}],721:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -76997,7 +77326,7 @@ function combineReducers(reducers) {
   };
 }
 }).call(this,require('_process'))
-},{"./createStore":722,"./utils/warning":724,"_process":403,"lodash/isPlainObject":361}],721:[function(require,module,exports){
+},{"./createStore":723,"./utils/warning":725,"_process":403,"lodash/isPlainObject":361}],722:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -77034,7 +77363,7 @@ function compose() {
     };
   });
 }
-},{}],722:[function(require,module,exports){
+},{}],723:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -77296,7 +77625,7 @@ var ActionTypes = exports.ActionTypes = {
     replaceReducer: replaceReducer
   }, _ref2[_symbolObservable2['default']] = observable, _ref2;
 }
-},{"lodash/isPlainObject":361,"symbol-observable":731}],723:[function(require,module,exports){
+},{"lodash/isPlainObject":361,"symbol-observable":732}],724:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -77345,7 +77674,7 @@ exports.bindActionCreators = _bindActionCreators2['default'];
 exports.applyMiddleware = _applyMiddleware2['default'];
 exports.compose = _compose2['default'];
 }).call(this,require('_process'))
-},{"./applyMiddleware":718,"./bindActionCreators":719,"./combineReducers":720,"./compose":721,"./createStore":722,"./utils/warning":724,"_process":403}],724:[function(require,module,exports){
+},{"./applyMiddleware":719,"./bindActionCreators":720,"./combineReducers":721,"./compose":722,"./createStore":723,"./utils/warning":725,"_process":403}],725:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -77371,7 +77700,7 @@ function warning(message) {
   } catch (e) {}
   /* eslint-enable no-empty */
 }
-},{}],725:[function(require,module,exports){
+},{}],726:[function(require,module,exports){
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
  *
@@ -77408,7 +77737,7 @@ if (hadRuntime) {
   }
 }
 
-},{"./runtime":726}],726:[function(require,module,exports){
+},{"./runtime":727}],727:[function(require,module,exports){
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
  *
@@ -78137,7 +78466,7 @@ if (hadRuntime) {
   (function() { return this })() || Function("return this")()
 );
 
-},{}],727:[function(require,module,exports){
+},{}],728:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -78201,7 +78530,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":43}],728:[function(require,module,exports){
+},{"buffer":43}],729:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -78330,7 +78659,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":169,"inherits":197,"readable-stream/duplex.js":591,"readable-stream/passthrough.js":600,"readable-stream/readable.js":601,"readable-stream/transform.js":602,"readable-stream/writable.js":603}],729:[function(require,module,exports){
+},{"events":169,"inherits":197,"readable-stream/duplex.js":591,"readable-stream/passthrough.js":600,"readable-stream/readable.js":601,"readable-stream/transform.js":602,"readable-stream/writable.js":603}],730:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -78603,7 +78932,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":727}],730:[function(require,module,exports){
+},{"safe-buffer":728}],731:[function(require,module,exports){
 var isHexPrefixed = require('is-hex-prefixed');
 
 /**
@@ -78619,10 +78948,10 @@ module.exports = function stripHexPrefix(str) {
   return isHexPrefixed(str) ? str.slice(2) : str;
 }
 
-},{"is-hex-prefixed":200}],731:[function(require,module,exports){
+},{"is-hex-prefixed":200}],732:[function(require,module,exports){
 module.exports = require('./lib/index');
 
-},{"./lib/index":732}],732:[function(require,module,exports){
+},{"./lib/index":733}],733:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -78654,7 +78983,7 @@ if (typeof self !== 'undefined') {
 var result = (0, _ponyfill2['default'])(root);
 exports['default'] = result;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ponyfill.js":733}],733:[function(require,module,exports){
+},{"./ponyfill.js":734}],734:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -78678,7 +79007,7 @@ function symbolObservablePonyfill(root) {
 
 	return result;
 };
-},{}],734:[function(require,module,exports){
+},{}],735:[function(require,module,exports){
 (function (global){
 
 /**
@@ -78749,16 +79078,16 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],735:[function(require,module,exports){
+},{}],736:[function(require,module,exports){
 arguments[4][197][0].apply(exports,arguments)
-},{"dup":197}],736:[function(require,module,exports){
+},{"dup":197}],737:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],737:[function(require,module,exports){
+},{}],738:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -79348,7 +79677,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":736,"_process":403,"inherits":735}],738:[function(require,module,exports){
+},{"./support/isBuffer":737,"_process":403,"inherits":736}],739:[function(require,module,exports){
 // Returns a wrapper function that returns a wrapped callback
 // The wrapper function should do some stuff, and return a
 // presumably different callback function.
@@ -79383,10 +79712,10 @@ function wrappy (fn, cb) {
   }
 }
 
-},{}],739:[function(require,module,exports){
+},{}],740:[function(require,module,exports){
 module.exports = XMLHttpRequest;
 
-},{}],740:[function(require,module,exports){
+},{}],741:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
