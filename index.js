@@ -81,10 +81,13 @@ function startApp(){
 // Check for account changes:
 setInterval(async function () {
   const accounts = await eth.accounts()
-  const account = accounts[0]
+  const newAccount = accounts[0]
+  const { account } = store.getState()
+  // abort if account unchanged
+  if (newAccount === account) return
+  // update account
   store.dispatch({
     type: 'ACCOUNT_CHANGED',
-    value: account,
+    value: newAccount,
   })
 }, 1000)
-
