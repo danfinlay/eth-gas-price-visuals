@@ -87,13 +87,16 @@ ScatterPlot.prototype.render = function () {
       dataKey: 'gasPrice',
       type: 'number',
       name: 'Gas Price',
-      unit: ' gwei'
+      unit: ' gwei',
+      scale: 'sqrt',
+      ticks: [1, 2, 5, 10, 20, 50, 100, 200],
     }),
     h(ZAxis, {
       dataKey: 'count',
       type: 'number',
       name: 'Transaction Count',
-      range: zrange,
+      range: [30, 200],
+      scale: 'linear',
     }),
     h(CartesianGrid),
     h(Scatter, {
@@ -103,9 +106,7 @@ ScatterPlot.prototype.render = function () {
       stackOffset: 'expand',
     }),
     h(Tooltip, {
-      cursor: {
-        strokeDasharray: '20 20',
-      },
+      cursor: false,
     })
   ])
 }
