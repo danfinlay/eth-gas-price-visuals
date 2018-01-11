@@ -95,7 +95,7 @@ ScatterPlot.prototype.render = function () {
       dataKey: 'count',
       type: 'number',
       name: 'Transaction Count',
-      range: [30, 200],
+      range: [6, 250],
       scale: 'linear',
     }),
     h(CartesianGrid),
