@@ -136,21 +136,22 @@ ScatterPlot.prototype.render = function () {
     dataKey: 'gasPrice',
     type: 'number',
     name: 'Gas Price',
-    unit: ' gwei'
+    unit: ' gwei',
+    scale: 'sqrt',
+    ticks: [1, 2, 5, 10, 20, 50, 100, 200]
   }), h(ZAxis, {
     dataKey: 'count',
     type: 'number',
     name: 'Transaction Count',
-    range: zrange
+    range: [6, 250],
+    scale: 'linear'
   }), h(CartesianGrid), h(Scatter, {
     name: 'Recent Transaction Costs',
     data: filtered,
     fill: '#888',
     stackOffset: 'expand'
   }), h(Tooltip, {
-    cursor: {
-      strokeDasharray: '20 20'
-    }
+    cursor: false
   })]);
 };
 
@@ -369,10 +370,18 @@ function startApp() {
 // Check for account changes:
 setInterval(async function () {
   var accounts = await eth.accounts();
-  var account = accounts[0];
+  var newAccount = accounts[0];
+
+  var _store$getState = store.getState(),
+      account = _store$getState.account;
+  // abort if account unchanged
+
+
+  if (newAccount === account) return;
+  // update account
   store.dispatch({
     type: 'ACCOUNT_CHANGED',
-    value: account
+    value: newAccount
   });
 }, 1000);
 
