@@ -3,9 +3,12 @@ const Component = require('react').Component
 const h = require('react-hyperscript')
 const connect = require('react-redux').connect
 const Eth = require('ethjs');
-const BarChart = require('./components/scatter-plot')
+const GasScatterPlot = require('./components/scatter-plot')
 const Provider = require('react-redux').Provider
 const extend = require('xtend')
+const recommender = require('../lib/recommender')
+const BN = require('ethjs').BN
+const GWEI_BN = new BN('1000000000')
 
 const MetaMaskLink = require('./components/download-metamask')
 
@@ -35,6 +38,10 @@ Home.prototype.render = function () {
   const props = this.props
   const { eth, loading, nonce, error, web3Found, recentBlocks, store } = props
 
+  const recommendedHex = recommender(recentBlocks)
+  const recommendedBN = new BN(recommendedHex, 16)
+  const recommendedNum = recommendedBN.div(GWEI_BN).toString(10)
+
   return (
     h('.content', {
       style: {
@@ -61,7 +68,9 @@ Home.prototype.render = function () {
           h(MetaMaskLink, { style: { width: '250px' } }),
         ])
           : loading ? h('span', 'Loading...') : h('div', [
-            h(BarChart, { recentBlocks }),
+            h(GasScatterPlot, { recentBlocks }),
+            h('br'),
+            h('span', `Here MetaMask would recommend ${recommendedNum} gwei, as the lowest price accepted by at least 50% of recent blocks.`),
             h('br'),
             h('button', {
               onClick: () => this.sendTip(),
