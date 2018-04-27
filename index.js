@@ -18,11 +18,10 @@ window.addEventListener('load', function() {
 
   const provider = metamask.createDefaultProvider({})
   eth = new Eth(provider)
-  blockTracker = new BlockTracker({
-    provider,
-  })
+  blockTracker = new BlockTracker({ provider })
   blockTracker.start()
-  blockTracker.on('block', (block) => {
+  blockTracker.on('block', async (block) => {
+    block.gethGasPrice = await eth.gasPrice()
     store.dispatch({ type: 'NEW_BLOCK', value: block })
   })
   trackOldBlocks()
