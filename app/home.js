@@ -9,6 +9,7 @@ const extend = require('xtend')
 const recommender = require('../lib/recommender')
 const BN = require('ethjs').BN
 const GWEI_BN = new BN('1000000000')
+const GWEI = 1e9
 
 const MetaMaskLink = require('./components/download-metamask')
 
@@ -16,10 +17,11 @@ module.exports = connect(mapStateToProps)(Home)
 
 function mapStateToProps (state) {
   return extend(state, {
-    recentBlocks: state.recentBlocks.map((oldBlock) => {
+    recentBlocks: state.recentBlocks.map((block) => {
       return {
-        number: oldBlock.number,
-        transactions: oldBlock.transactions.map((tx) => {
+        number: block.number,
+        gethGasPrice: block.gethGasPrice,
+        transactions: block.transactions.map((tx) => {
           return {
             gasPrice: tx.gasPrice,
           }
@@ -40,7 +42,11 @@ Home.prototype.render = function () {
 
   const recommendedHex = recommender(recentBlocks)
   const recommendedBN = new BN(recommendedHex, 16)
-  const recommendedNum = recommendedBN.div(GWEI_BN).toString(10)
+  const recommendedNum = (recommendedBN.toNumber() / GWEI).toFixed(2)
+
+  const lastBlock = recentBlocks.slice(-1)[0]
+  const gethRecommendedRaw = lastBlock ? lastBlock.gethGasPrice : 0
+  const gethRecommendedNum = (gethRecommendedRaw / GWEI).toFixed(2)
 
   return (
     h('.content', {
@@ -70,7 +76,16 @@ Home.prototype.render = function () {
           : loading ? h('span', 'Loading...') : h('div', [
             h(GasScatterPlot, { recentBlocks }),
             h('br'),
-            h('span', `Here MetaMask would recommend ${recommendedNum} gwei, as the lowest price accepted by at least 50% of recent blocks.`),
+            h('span', [
+              `MetaMask would recommend `,
+              h('strong', `${recommendedNum} gwei`),
+              ` (the lowest price accepted by at least 50% of recent blocks)`,
+            ]),
+            h('br'),
+            h('span', [
+              `Geth reccomended `,
+              h('strong', `${gethRecommendedNum} gwei`),
+            ]),
             h('br'),
             h('button', {
               onClick: () => this.sendTip(),
